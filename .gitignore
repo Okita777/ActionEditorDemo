@@ -1,0 +1,16 @@
+.vs/
+.vscode/
+.idea/
+.userprefs
+.DS_Store
+Thumbs.db
+Library/
+Temp/
+Build/
+Builds/
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
