@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 111ef128e0e4cc24d86181bfd9191d42, type: 3}
+  m_Name: CharacterInputMapConfig
+  m_EditorClassIdentifier: 
+  Actions:
+  - ActionName: skill1
+    ValueType: 0
+  - ActionName: skill2
+    ValueType: 0
+  - ActionName: skill3
+    ValueType: 0
+  - ActionName: attack
+    ValueType: 0
+  - ActionName: test_beHit
+    ValueType: 0
+  - ActionName: jump
+    ValueType: 0
+  - ActionName: guard
+    ValueType: 0
+  - ActionName: lock
+    ValueType: 0
+  - ActionName: switchLockLeft
+    ValueType: 0
+  - ActionName: switchLockRight
+    ValueType: 0
+  ButtonBindings:
+  - ActionName: skill1
+    PcKey: 113
+    GamepadButton: 3
+    LegacyMouseButton: -1
+  - ActionName: skill2
+    PcKey: 50
+    GamepadButton: 4
+    LegacyMouseButton: -1
+  - ActionName: skill3
+    PcKey: 114
+    GamepadButton: 6
+    LegacyMouseButton: -1
+  - ActionName: attack
+    PcKey: 323
+    GamepadButton: 1
+    LegacyMouseButton: -1
+  - ActionName: test_beHit
+    PcKey: 51
+    GamepadButton: 2
+    LegacyMouseButton: -1
+  - ActionName: jump
+    PcKey: 32
+    GamepadButton: 0
+    LegacyMouseButton: -1
+  - ActionName: guard
+    PcKey: 51
+    GamepadButton: 0
+    LegacyMouseButton: -1
+  - ActionName: lock
+    PcKey: 325
+    GamepadButton: 0
+    LegacyMouseButton: -1
+  - ActionName: switchLockLeft
+    PcKey: 97
+    GamepadButton: 0
+    LegacyMouseButton: -1
+  - ActionName: switchLockRight
+    PcKey: 275
+    GamepadButton: 0
+    LegacyMouseButton: -1
