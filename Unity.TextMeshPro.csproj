@@ -68,8 +68,8 @@
     <Compile Include="Library\PackageCache\com.unity.textmeshpro@3.0.7\Scripts\Runtime\TMP_TextParsingUtilities.cs" />
     <Compile Include="Library\PackageCache\com.unity.textmeshpro@3.0.7\Scripts\Runtime\TMP_SpriteCharacter.cs" />
     <Compile Include="Library\PackageCache\com.unity.textmeshpro@3.0.7\Scripts\Runtime\TMP_ObjectPool.cs" />
-    <Compile Include="Library\PackageCache\com.unity.textmeshpro@3.0.7\Scripts\Runtime\ITextPreProcessor.cs" />
     <Compile Include="Library\PackageCache\com.unity.textmeshpro@3.0.7\Scripts\Runtime\TMP_SubMesh.cs" />
+    <Compile Include="Library\PackageCache\com.unity.textmeshpro@3.0.7\Scripts\Runtime\ITextPreProcessor.cs" />
     <Compile Include="Library\PackageCache\com.unity.textmeshpro@3.0.7\Scripts\Runtime\TMP_EditorResourceManager.cs" />
     <Compile Include="Library\PackageCache\com.unity.textmeshpro@3.0.7\Scripts\Runtime\TMP_InputValidator.cs" />
     <Compile Include="Library\PackageCache\com.unity.textmeshpro@3.0.7\Scripts\Runtime\TMPro_ExtensionMethods.cs" />
@@ -111,8 +111,8 @@
     <Compile Include="Library\PackageCache\com.unity.textmeshpro@3.0.7\Scripts\Runtime\TMP_RichTextTagsCommon.cs" />
     <Compile Include="Library\PackageCache\com.unity.textmeshpro@3.0.7\Scripts\Runtime\TMP_UpdateRegistery.cs" />
     <Compile Include="Library\PackageCache\com.unity.textmeshpro@3.0.7\Scripts\Runtime\TMP_PackageResourceImporter.cs" />
-    <Compile Include="Library\PackageCache\com.unity.textmeshpro@3.0.7\Scripts\Runtime\FastAction.cs" />
     <Compile Include="Library\PackageCache\com.unity.textmeshpro@3.0.7\Scripts\Runtime\TMP_Text.cs" />
+    <Compile Include="Library\PackageCache\com.unity.textmeshpro@3.0.7\Scripts\Runtime\FastAction.cs" />
     <Compile Include="Library\PackageCache\com.unity.textmeshpro@3.0.7\Scripts\Runtime\TMPro_MeshUtilities.cs" />
     <Compile Include="Library\PackageCache\com.unity.textmeshpro@3.0.7\Scripts\Runtime\TMP_FontAsset.cs" />
     <Compile Include="Library\PackageCache\com.unity.textmeshpro@3.0.7\Scripts\Runtime\TMP_SpriteAnimator.cs" />
