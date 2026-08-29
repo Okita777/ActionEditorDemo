@@ -1,0 +1,78 @@
+﻿{
+    "UnitId": "Player",
+    "DisplayName": "Player",
+    "DefaultStateId": "",
+    "PrefabAssetPath": "Assets/Resources/Prefabs/Avatar_Female_Size02_Unagi_Model.prefab",
+    "CameraResourcePath": "Assets/Resources/Camera/PlayerCamera.prefab",
+    "HardLock": {
+        "SearchRadius": 20.0,
+        "HorizontalFanAngle": 120.0,
+        "ViewPivotHeightOffset": 1.0,
+        "TargetLayers": -1,
+        "ObstacleLayers": 0,
+        "DistanceWeight": 0.5,
+        "AngleWeight": 0.5,
+        "OcclusionUnlockDelay": 0.75,
+        "UnlockRadius": 25.0,
+        "ToggleAction": "",
+        "SwitchLeftAction": "",
+        "SwitchRightAction": "",
+        "SwitchFartherAction": "",
+        "SwitchNearerAction": ""
+    },
+    "DefaultHardLockFacingMode": 1,
+    "AnimationDirectory": "",
+    "Locomotion": {
+        "MaxMoveSpeed": 7.0,
+        "GroundAcceleration": 70.0,
+        "GroundDeceleration": 100.0,
+        "DirectionChangeAcceleration": 140.0,
+        "HardTurnAngle": 100.0,
+        "HardTurnSpeedRetention": 0.0,
+        "AirAcceleration": 16.0,
+        "MaxAirSpeed": 4.0,
+        "TurnSpeed": 1440.0,
+        "AirTurnSpeed": 720.0,
+        "HardTurnSpeed": 2160.0,
+        "SnapFacingOnHardTurn": true,
+        "StableGroundLayers": -1,
+        "EnableGravity": true,
+        "Gravity": 25.0,
+        "MaxFallSpeed": 40.0,
+        "ExternalVelocityDrag": 4.0
+    },
+    "RecoveryCancel": {
+        "AllowSkillCancel": true,
+        "AllowMoveCancel": true,
+        "AllowHitReactionCancel": true,
+        "AllowForcedCancel": true
+    },
+    "LayerDefaultStates": [
+        {
+            "Layer": 1,
+            "DefaultStateId": "Idle"
+        },
+        {
+            "Layer": 2,
+            "DefaultStateId": "Default_ActionState"
+        }
+    ],
+    "AnimationLayers": [
+        {
+            "Layer": 1,
+            "AnimancerLayerIndex": 0,
+            "BlendMode": 0,
+            "AvatarMaskAssetPath": "",
+            "DefaultWeight": 1.0
+        },
+        {
+            "Layer": 2,
+            "AnimancerLayerIndex": 1,
+            "BlendMode": 0,
+            "AvatarMaskAssetPath": "",
+            "DefaultWeight": 0.0
+        }
+    ],
+    "ActiveSkillSlots": [],
+    "PassiveSkillSlots": []
+}
