@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ddc288ee56768d9bdacabe3501a74d1d, type: 3}
+  m_Name: CH0167_Cutin_Sukeban
+  m_EditorClassIdentifier:
+  m_Version: 0
+  m_Tracks:
+  - {fileID: 11400000, guid: 4631871c942b3c1478473fbe787b7272, type: 2}
+  - {fileID: 11400000, guid: 3eaf15825098afe4b8b5f39c67d65cad, type: 2}
+  - {fileID: 11400000, guid: c8535027c96bf53428ec67a712fbf4a7, type: 2}
+  - {fileID: 11400000, guid: 03fa8d367c6b1654e9194d688746ef0e, type: 2}
+  - {fileID: 11400000, guid: 86477e6e1568db5459150333163d64e5, type: 2}
+  - {fileID: 11400000, guid: 7786753d4bd94ae4bb6976ef8bf88165, type: 2}
+  - {fileID: 11400000, guid: e180db0763758364faf77c6bbfe3078e, type: 2}
+  - {fileID: 11400000, guid: 75e8678b1808872469b9877a70b2cb90, type: 2}
+  - {fileID: 11400000, guid: 01f23353fc38381488bcc45b34d52eb6, type: 2}
+  - {fileID: 11400000, guid: b5b20cc7d9557e04ab6c1ec58591f748, type: 2}
+  - {fileID: 11400000, guid: bb376cfd8e3de3f4d94bb812e3ffa3d7, type: 2}
+  m_FixedDuration: 0
+  m_EditorSettings:
+    m_Framerate: 30
+    m_ScenePreview: 1
+  m_DurationMode: 0
+  m_MarkerTrack: {fileID: 0}

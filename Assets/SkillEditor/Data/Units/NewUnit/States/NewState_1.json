@@ -82,7 +82,7 @@
     },
     "DefaultNextStateId": "",
     "Timeline": {
-        "Duration": 0.0,
+        "Duration": 0.15000000596046449,
         "Animation": {
             "TransitionDuration": 0.10000000149011612,
             "TransitionTimeUnit": 0,
@@ -91,7 +91,35 @@
             "StartTimeUnit": 0
         },
         "Tracks": [],
-        "InterruptTracks": [],
+        "InterruptTracks": [
+            {
+                "TrackId": "dbc141e5707f4b8fae810642d204e8ef",
+                "DisplayName": "打断轨道1",
+                "IsEnabled": true,
+                "Interrupts": [
+                    {
+                        "IsEnabled": true,
+                        "TargetStateId": "Evade",
+                        "TriggerTime": 0.0,
+                        "Duration": 0.15000000596046449,
+                        "ExecuteTime": 0.0,
+                        "SortOrder": 0,
+                        "CheckAllConditions": true,
+                        "UseTransitionOverride": false,
+                        "TransitionDuration": 0.0,
+                        "TransitionTimeUnit": 0,
+                        "TargetStartTime": 0.0,
+                        "TargetStartTimeUnit": 0,
+                        "TransitionPolicy": 0,
+                        "Conditions": [
+                            {
+                                "rid": 1000
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
         "Interrupts": []
     },
     "Tags": {
@@ -109,6 +137,19 @@
     "SafeFallbackStateId": "",
     "references": {
         "version": 2,
-        "RefIds": []
+        "RefIds": [
+            {
+                "rid": 1000,
+                "type": {
+                    "class": "StateKeyInterruptCondition",
+                    "ns": "AsiSkillEditor.RunTime",
+                    "asm": "Assembly-CSharp"
+                },
+                "data": {
+                    "ActionName": "Evade",
+                    "TriggerMode": 0
+                }
+            }
+        ]
     }
 }

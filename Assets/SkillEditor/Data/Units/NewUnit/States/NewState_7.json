@@ -1,0 +1,193 @@
+﻿{
+    "StateId": "Evade",
+    "StateName": "Evade",
+    "AnimationClipPath": "Assets/Resources/Characters/雅/Animation/雅_移动动作.fbx|8499197216477740432|Avatar_Female_Size02_Unagi_Ani_Evade_Front",
+    "AnimationMode": 0,
+    "DirectionalMixer2D": {
+        "IdleClipPath": "Assets/Resources/Characters/雅/Animation/雅_移动动作.fbx|1106022805061252040|Avatar_Female_Size02_Unagi_Ani_Idle",
+        "ForwardClipPath": "Assets/Resources/Characters/雅/Animation/雅_移动动作.fbx|8499197216477740432|Avatar_Female_Size02_Unagi_Ani_Evade_Front",
+        "ForwardRightClipPath": "Assets/Resources/Characters/雅/Animation/雅_攻击动作.fbx|-7407910689189214246|Avatar_Female_Size02_Unagi_Ani_Evade_Front_Right",
+        "RightClipPath": "",
+        "BackRightClipPath": "",
+        "BackClipPath": "Assets/Resources/Characters/雅/Animation/雅_移动动作.fbx|-4756552657945709222|Avatar_Female_Size02_Unagi_Ani_Evade_Back",
+        "BackLeftClipPath": "Assets/Resources/Characters/雅/Animation/雅_移动动作.fbx|-3115565738440498854|Avatar_Female_Size02_Unagi_Ani_Evade_Back_Left",
+        "LeftClipPath": "",
+        "ForwardLeftClipPath": "Assets/Resources/Characters/雅/Animation/雅_移动动作.fbx|1280743008863027657|Avatar_Female_Size02_Unagi_Ani_Evade_Front_Left",
+        "IdleThreshold": {
+            "x": 0.0,
+            "y": 0.0
+        },
+        "ForwardThreshold": {
+            "x": 0.0,
+            "y": 1.0
+        },
+        "ForwardRightThreshold": {
+            "x": 0.707099974155426,
+            "y": 0.707099974155426
+        },
+        "RightThreshold": {
+            "x": 1.0,
+            "y": 0.0
+        },
+        "BackRightThreshold": {
+            "x": 0.707099974155426,
+            "y": -0.707099974155426
+        },
+        "BackThreshold": {
+            "x": 0.0,
+            "y": -1.0
+        },
+        "BackLeftThreshold": {
+            "x": -0.707099974155426,
+            "y": -0.707099974155426
+        },
+        "LeftThreshold": {
+            "x": -1.0,
+            "y": 0.0
+        },
+        "ForwardLeftThreshold": {
+            "x": -0.707099974155426,
+            "y": 0.707099974155426
+        },
+        "ParameterSmoothSpeed": 18.0
+    },
+    "AnimationProfile": {
+        "OutputLayer": 2,
+        "OverrideLowerLayers": false,
+        "LayerWeight": 1.0,
+        "Speed": 1.0,
+        "ApplyRootMotion": true,
+        "MatchLocomotionSpeed": false,
+        "AuthoredMoveSpeed": 6.0,
+        "MinLocomotionPlaybackSpeed": 0.8500000238418579,
+        "MaxLocomotionPlaybackSpeed": 1.149999976158142,
+        "LocomotionSpeedMatchSharpness": 18.0,
+        "LocomotionSpeedMatchDeadZone": 0.009999999776482582
+    },
+    "AffectsLocomotion": true,
+    "MovementProfile": {
+        "TranslationMode": 1,
+        "RotationMode": 0,
+        "InputSpeedMultiplier": 1.0,
+        "AccelerationMultiplier": 1.0,
+        "DecelerationMultiplier": 1.0,
+        "RootMotionForwardWeight": 1.0,
+        "RootMotionSideWeight": 1.0,
+        "RootMotionVerticalWeight": 0.0,
+        "RootMotionRotationWeight": 1.0,
+        "AllowBackwardRootMotion": true,
+        "MaxTurnSpeed": 0.0,
+        "AllowGravity": true,
+        "AirControl": 1.0
+    },
+    "DefaultNextStateId": "Default_ActionState",
+    "Timeline": {
+        "Duration": 4.016666889190674,
+        "Animation": {
+            "TransitionDuration": 0.10000000149011612,
+            "TransitionTimeUnit": 0,
+            "FadeMode": 1,
+            "StartTime": 0.0,
+            "StartTimeUnit": 0
+        },
+        "Tracks": [],
+        "InterruptTracks": [
+            {
+                "TrackId": "c80f5388a2a24393994a283c0572598a",
+                "DisplayName": "打断轨道1",
+                "IsEnabled": true,
+                "Interrupts": [
+                    {
+                        "IsEnabled": true,
+                        "TargetStateId": "Default_ActionState",
+                        "TriggerTime": 0.5117111206054688,
+                        "Duration": 3.504955768585205,
+                        "ExecuteTime": 0.0,
+                        "SortOrder": 0,
+                        "CheckAllConditions": true,
+                        "UseTransitionOverride": false,
+                        "TransitionDuration": 0.0,
+                        "TransitionTimeUnit": 0,
+                        "TargetStartTime": 0.0,
+                        "TargetStartTimeUnit": 0,
+                        "TransitionPolicy": 0,
+                        "Conditions": [
+                            {
+                                "rid": 1000
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "TrackId": "94ecd175a5954a4e877a56807f0584a9",
+                "DisplayName": "打断轨道2",
+                "IsEnabled": true,
+                "Interrupts": [
+                    {
+                        "IsEnabled": true,
+                        "TargetStateId": "Evade",
+                        "TriggerTime": 0.5099405646324158,
+                        "Duration": 3.5067262649536135,
+                        "ExecuteTime": 0.0,
+                        "SortOrder": 0,
+                        "CheckAllConditions": true,
+                        "UseTransitionOverride": false,
+                        "TransitionDuration": 0.0,
+                        "TransitionTimeUnit": 0,
+                        "TargetStartTime": 0.0,
+                        "TargetStartTimeUnit": 0,
+                        "TransitionPolicy": 0,
+                        "Conditions": [
+                            {
+                                "rid": 1001
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "Interrupts": []
+    },
+    "Tags": {
+        "Tags": []
+    },
+    "Layer": 2,
+    "PresentationMode": 1,
+    "PrimaryAnimationSlot": 1,
+    "ControlsMovement": false,
+    "ControlsRotation": false,
+    "BlocksLocomotionAnimation": false,
+    "LocomotionImpactMode": 0,
+    "IsLayerDefaultState": false,
+    "IsActionReleaseState": false,
+    "SafeFallbackStateId": "",
+    "references": {
+        "version": 2,
+        "RefIds": [
+            {
+                "rid": 1000,
+                "type": {
+                    "class": "StateMoveInputInterruptCondition",
+                    "ns": "AsiSkillEditor.RunTime",
+                    "asm": "Assembly-CSharp"
+                },
+                "data": {
+                    "MoveInputMode": 0
+                }
+            },
+            {
+                "rid": 1001,
+                "type": {
+                    "class": "StateKeyInterruptCondition",
+                    "ns": "AsiSkillEditor.RunTime",
+                    "asm": "Assembly-CSharp"
+                },
+                "data": {
+                    "ActionName": "Evade",
+                    "TriggerMode": 0
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ddc288ee56768d9bdacabe3501a74d1d, type: 3}
+  m_Name: CH0167_Cutin
+  m_EditorClassIdentifier:
+  m_Version: 0
+  m_Tracks:
+  - {fileID: 11400000, guid: 2b111ebd1c723894d8635fe0593fceb2, type: 2}
+  - {fileID: 11400000, guid: abd32267a76e4fa42b0dfc0245887951, type: 2}
+  - {fileID: 11400000, guid: eadfae0c922fd2442965c728cc7b6f14, type: 2}
+  - {fileID: 11400000, guid: acf9c6e3e8653cf439be6f79d05be83e, type: 2}
+  - {fileID: 11400000, guid: e5c1480bf2ef23f43a08a611438dbf51, type: 2}
+  - {fileID: 11400000, guid: 91f3d96b72791a540a0e7d859c405266, type: 2}
+  - {fileID: 11400000, guid: 1196c1d837efd9e41b30d3bd9049cf1f, type: 2}
+  - {fileID: 11400000, guid: 6a2b870d40905f84d96bb6cde28f53e3, type: 2}
+  - {fileID: 11400000, guid: fe2573561ecb6df40a6da93228050d42, type: 2}
+  - {fileID: 11400000, guid: e4bbcdbdf290cc34db1f12c4dd9c139b, type: 2}
+  - {fileID: 11400000, guid: f83938983d2a4d04ca724fa45017a2da, type: 2}
+  - {fileID: 11400000, guid: 65e6241dbf129634292d728ac1cecdbd, type: 2}
+  - {fileID: 11400000, guid: c348242aa2e9e9b4db3ba9f462d6045d, type: 2}
+  - {fileID: 11400000, guid: a46c7d72d4dc64c45a57fe4a835aa625, type: 2}
+  - {fileID: 11400000, guid: 21b82c7548eb34e4392a89325c7133f6, type: 2}
+  - {fileID: 11400000, guid: 8d328dd10f36bb14380268bfc1eb518f, type: 2}
+  - {fileID: 11400000, guid: 9befb6b9796ae314fb962a137442eba9, type: 2}
+  - {fileID: 11400000, guid: 55f1e219bcce3d4438817a33f7997e33, type: 2}
+  - {fileID: 11400000, guid: d87a4f3fd099cf84db9212d198b1d0f0, type: 2}
+  - {fileID: 11400000, guid: d96621428eecf4647b7f93e89cb69296, type: 2}
+  - {fileID: 11400000, guid: 5836a958a896feb4cac8e6e264b7ef01, type: 2}
+  m_FixedDuration: 0
+  m_EditorSettings:
+    m_Framerate: 30
+    m_ScenePreview: 1
+  m_DurationMode: 0
+  m_MarkerTrack: {fileID: 0}

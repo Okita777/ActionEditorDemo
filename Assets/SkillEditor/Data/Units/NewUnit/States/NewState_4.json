@@ -99,7 +99,7 @@
                 "Interrupts": [
                     {
                         "IsEnabled": true,
-                        "TargetStateId": "Run_End",
+                        "TargetStateId": "Run_Start_End",
                         "TriggerTime": 0.0,
                         "Duration": 1.4833334684371949,
                         "ExecuteTime": 0.0,
