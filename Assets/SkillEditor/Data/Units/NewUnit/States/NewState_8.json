@@ -1,7 +1,7 @@
 ﻿{
-    "StateId": "Run_Start_End",
-    "StateName": "Run_Start_End",
-    "AnimationClipPath": "Assets/Resources/Characters/雅/Animation/雅_移动动作.fbx|-2795115477538377714|Avatar_Female_Size02_Unagi_Ani_Run_Start_End",
+    "StateId": "Walk",
+    "StateName": "Walk",
+    "AnimationClipPath": "Assets/Resources/Characters/雅/Animation/雅_移动动作.fbx|-229413099510903425|Avatar_Female_Size02_Unagi_Ani_Walk",
     "AnimationMode": 0,
     "DirectionalMixer2D": {
         "IdleClipPath": "",
@@ -80,9 +80,9 @@
         "AllowGravity": true,
         "AirControl": 1.0
     },
-    "DefaultNextStateId": "Idle",
+    "DefaultNextStateId": "Run",
     "Timeline": {
-        "Duration": 0.0,
+        "Duration": 0.6166666746139526,
         "Animation": {
             "TransitionDuration": 0.10000000149011612,
             "TransitionTimeUnit": 0,
@@ -91,7 +91,35 @@
             "StartTimeUnit": 0
         },
         "Tracks": [],
-        "InterruptTracks": [],
+        "InterruptTracks": [
+            {
+                "TrackId": "d0a0349b9c3844168b5a2f5474521b24",
+                "DisplayName": "打断轨道2",
+                "IsEnabled": true,
+                "Interrupts": [
+                    {
+                        "IsEnabled": true,
+                        "TargetStateId": "Run_End",
+                        "TriggerTime": 0.0,
+                        "Duration": 0.6166666746139526,
+                        "ExecuteTime": 0.0,
+                        "SortOrder": 0,
+                        "CheckAllConditions": true,
+                        "UseTransitionOverride": false,
+                        "TransitionDuration": 0.0,
+                        "TransitionTimeUnit": 0,
+                        "TargetStartTime": 0.0,
+                        "TargetStartTimeUnit": 0,
+                        "TransitionPolicy": 0,
+                        "Conditions": [
+                            {
+                                "rid": 1000
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
         "Interrupts": []
     },
     "Tags": {
@@ -109,6 +137,18 @@
     "SafeFallbackStateId": "",
     "references": {
         "version": 2,
-        "RefIds": []
+        "RefIds": [
+            {
+                "rid": 1000,
+                "type": {
+                    "class": "StateMoveInputInterruptCondition",
+                    "ns": "AsiSkillEditor.RunTime",
+                    "asm": "Assembly-CSharp"
+                },
+                "data": {
+                    "MoveInputMode": 3
+                }
+            }
+        ]
     }
 }

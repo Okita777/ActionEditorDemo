@@ -38,6 +38,16 @@ namespace ActionEditor.CharacterMotion
 
         public CharacterMotionIntent CurrentIntent { get; private set; }
 
+        /// <summary>
+        /// 按当前输入帧和相机平面基准即时计算运动意图。
+        /// 状态中断在 KCC 收集运动源之前执行时，也能读取本帧而不是上一帧的输入方向。
+        /// </summary>
+        public CharacterMotionIntent ResolveCurrentIntent()
+        {
+            Vector2 moveAxis = ResolveMoveAxis();
+            return new CharacterMotionIntent(moveAxis, ResolveMoveDirection(moveAxis));
+        }
+
         public bool TryGetCameraPlanarBasis(out Vector3 forward, out Vector3 right)
         {
             if (_cameraBasisProvider != null && _cameraBasisProvider.IsAvailable)
@@ -89,21 +99,19 @@ namespace ActionEditor.CharacterMotion
 
         public void Collect(CharacterVelocity velocity, CharacterRotation rotation, float deltaTime)
         {
-            Vector2 moveAxis = ResolveMoveAxis();
-            Vector3 moveDirection = ResolveMoveDirection(moveAxis);
-            CurrentIntent = new CharacterMotionIntent(moveAxis, moveDirection);
+            CurrentIntent = ResolveCurrentIntent();
 
             if (EnableMove)
             {
                 Vector3 desiredVelocity = CurrentIntent.HasMoveInput
-                    ? moveDirection * CurrentIntent.InputMagnitude
+                    ? CurrentIntent.DesiredWorldDirection * CurrentIntent.InputMagnitude
                     : Vector3.zero;
                 velocity.SetDesiredLocomotionVelocity(desiredVelocity, "Input");
             }
 
             if (EnableRotate && CurrentIntent.HasMoveInput)
             {
-                rotation.AddLookDirection(moveDirection, 0f, "Input");
+                rotation.AddLookDirection(CurrentIntent.DesiredWorldDirection, 0f, "Input");
             }
         }
 

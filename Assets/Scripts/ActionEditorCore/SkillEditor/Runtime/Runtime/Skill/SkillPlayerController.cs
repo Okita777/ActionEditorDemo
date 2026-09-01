@@ -679,6 +679,8 @@ namespace AsiSkillEditor.RunTime
                 StateInputSnapshot frameSnapshot = CreateActionStateSnapshot();
                 frameSnapshot.IsMoveInput = inputFrame.HasMoveInput;
                 frameSnapshot.IsMoveInputPre = inputFrame.HadMoveInputLastFrame;
+                frameSnapshot.MoveInputActiveDuration = inputFrame.MoveInputActiveDuration;
+                frameSnapshot.MoveInputInactiveDuration = inputFrame.MoveInputInactiveDuration;
 
                 CopyActionNames(inputFrame.HeldActions, frameSnapshot.HeldActions);
                 CopyActionNames(inputFrame.DownActions, frameSnapshot.DownActions);

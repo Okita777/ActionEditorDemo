@@ -4130,6 +4130,10 @@ namespace SkillEditor.Editor
                         break;
                     case "StateMoveInputInterruptCondition":
                         DrawReflectedEnumField(condition, "MoveInputMode", "MoveInputMode");
+                        DrawReflectedFloatField(condition, "MinimumDuration", "最小持续时间", true);
+                        break;
+                    case "CompareCharacterForwardToInputInterruptCondition":
+                        DrawReflectedFloatField(condition, "AngleThreshold", "夹角阈值", true);
                         break;
                     case "StateTagInterruptCondition":
                         DrawReflectedTextField(condition, "Tag", "Tag");
@@ -4161,6 +4165,7 @@ namespace SkillEditor.Editor
                 GenericMenu menu = new GenericMenu();
                 AddInterruptConditionMenuItem(menu, "输入动作条件", "StateKeyInterruptCondition");
                 AddInterruptConditionMenuItem(menu, "移动输入条件", "StateMoveInputInterruptCondition");
+                AddInterruptConditionMenuItem(menu, "角色前向/输入夹角条件", "CompareCharacterForwardToInputInterruptCondition");
                 AddInterruptConditionMenuItem(menu, "命中条件", "StateHitInterruptCondition");
                 AddInterruptConditionMenuItem(menu, "受击条件", "StateBeHitInterruptCondition");
                 AddInterruptConditionMenuItem(menu, "Tag 条件", "StateTagInterruptCondition");

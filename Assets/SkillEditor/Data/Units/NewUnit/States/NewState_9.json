@@ -1,7 +1,7 @@
 ﻿{
-    "StateId": "Run_Start",
-    "StateName": "Run_Start",
-    "AnimationClipPath": "Assets/Resources/Characters/雅/Animation/雅_移动动作.fbx|399448047040821400|Avatar_Female_Size02_Unagi_Ani_Run_Start",
+    "StateId": "Walk_Start",
+    "StateName": "Walk_Start",
+    "AnimationClipPath": "Assets/Resources/Characters/雅/Animation/雅_移动动作.fbx|-8292161441776038206|Avatar_Female_Size02_Unagi_Ani_Walk_Start",
     "AnimationMode": 0,
     "DirectionalMixer2D": {
         "IdleClipPath": "",
@@ -80,9 +80,9 @@
         "AllowGravity": true,
         "AirControl": 1.0
     },
-    "DefaultNextStateId": "Run",
+    "DefaultNextStateId": "Walk",
     "Timeline": {
-        "Duration": 1.4833334684371949,
+        "Duration": 1.133333444595337,
         "Animation": {
             "TransitionDuration": 0.10000000149011612,
             "TransitionTimeUnit": 0,
@@ -93,15 +93,15 @@
         "Tracks": [],
         "InterruptTracks": [
             {
-                "TrackId": "338b65e4ad0844e59e29a8dfd3fefc9f",
-                "DisplayName": "打断轨道1",
+                "TrackId": "fa8c6e002af64ed3ab0e32976ca523cf",
+                "DisplayName": "打断轨道2",
                 "IsEnabled": true,
                 "Interrupts": [
                     {
                         "IsEnabled": true,
-                        "TargetStateId": "Run_Start_End",
+                        "TargetStateId": "Run_End",
                         "TriggerTime": 0.0,
-                        "Duration": 1.4833334684371949,
+                        "Duration": 1.133333444595337,
                         "ExecuteTime": 0.0,
                         "SortOrder": 0,
                         "CheckAllConditions": true,
@@ -146,7 +146,7 @@
                     "asm": "Assembly-CSharp"
                 },
                 "data": {
-                    "MoveInputMode": 2
+                    "MoveInputMode": 3
                 }
             }
         ]

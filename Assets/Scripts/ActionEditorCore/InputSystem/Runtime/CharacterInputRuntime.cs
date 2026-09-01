@@ -58,6 +58,10 @@ namespace ActionEditor.InputSystem
 
         public bool HadMoveInputLastFrame { get; internal set; }
 
+        public float MoveInputActiveDuration { get; internal set; }
+
+        public float MoveInputInactiveDuration { get; internal set; }
+
         public IReadOnlyCollection<string> HeldActions => _heldActions;
 
         public IReadOnlyCollection<string> DownActions => _downActions;
@@ -129,6 +133,8 @@ namespace ActionEditor.InputSystem
             LookAxis = Vector2.zero;
             HasMoveInput = false;
             HadMoveInputLastFrame = hadMoveInputLastFrame;
+            MoveInputActiveDuration = 0f;
+            MoveInputInactiveDuration = 0f;
             _heldActions.Clear();
             _downActions.Clear();
             _upActions.Clear();
@@ -235,6 +241,8 @@ namespace ActionEditor.InputSystem
         private readonly Dictionary<string, ActionEvaluationState> _actionStates = new Dictionary<string, ActionEvaluationState>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, ActionInputAggregate> _actionAggregates = new Dictionary<string, ActionInputAggregate>(StringComparer.OrdinalIgnoreCase);
         private readonly float _longPressThreshold;
+        private float _moveInputActiveDuration;
+        private float _moveInputInactiveDuration;
 
         public LegacyCharacterInputProvider(CharacterInputMapConfig config, float longPressThreshold)
         {
@@ -265,7 +273,26 @@ namespace ActionEditor.InputSystem
             TickButtons();
             EvaluateActionStates(deltaTime);
             TickMoveAndLook();
+            UpdateMoveInputDurations(deltaTime);
             EmitMoveEvents();
+        }
+
+        private void UpdateMoveInputDurations(float deltaTime)
+        {
+            float dt = Mathf.Max(0f, deltaTime);
+            if (_frame.HasMoveInput)
+            {
+                _moveInputActiveDuration += dt;
+                _moveInputInactiveDuration = 0f;
+            }
+            else
+            {
+                _moveInputActiveDuration = 0f;
+                _moveInputInactiveDuration += dt;
+            }
+
+            _frame.MoveInputActiveDuration = _moveInputActiveDuration;
+            _frame.MoveInputInactiveDuration = _moveInputInactiveDuration;
         }
 
         private void TickButtons()

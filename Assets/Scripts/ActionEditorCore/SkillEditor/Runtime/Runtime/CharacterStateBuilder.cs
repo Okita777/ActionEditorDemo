@@ -54,6 +54,9 @@ namespace AsiSkillEditor.RunTime
             ActionEditor.CharacterMotion.CustomCharacterController characterController =
                 owner.GetComponent<ActionEditor.CharacterMotion.CustomCharacterController>() ??
                 owner.GetComponentInChildren<ActionEditor.CharacterMotion.CustomCharacterController>(true);
+            ActionEditor.CharacterMotion.InputMotionSource inputMotionSource = characterController != null
+                ? characterController.GetComponent<ActionEditor.CharacterMotion.InputMotionSource>()
+                : owner.GetComponentInChildren<ActionEditor.CharacterMotion.InputMotionSource>(true);
             SkillContext stateContext = new SkillContext
             {
                 Caster = ownerUnit,
@@ -81,6 +84,12 @@ namespace AsiSkillEditor.RunTime
                 BreakValueProvider = breakValueProvider,
                 MotionSnapshotProvider = characterController != null
                     ? () => characterController.MotionSnapshot
+                    : null,
+                CharacterForwardProvider = characterController != null
+                    ? () => characterController.transform.forward
+                    : () => owner.transform.forward,
+                MoveInputDirectionProvider = inputMotionSource != null
+                    ? () => inputMotionSource.ResolveCurrentIntent().DesiredWorldDirection
                     : null,
             },
                 unitConfig != null ? unitConfig.LayerDefaultStates : null,

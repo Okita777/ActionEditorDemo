@@ -107,10 +107,13 @@ namespace AsiSkillEditor.RunTime
     public sealed class StateMoveInputInterruptCondition : IStateInterruptCondition
     {
         public StateMoveInputMode MoveInputMode = StateMoveInputMode.Active;
+        [Min(0f)] public float MinimumDuration;
 
         public string GetDisplayName()
         {
-            return $"移动输入:{MoveInputMode}";
+            return MinimumDuration > 0f
+                ? $"移动输入:{MoveInputMode} 持续 >= {MinimumDuration:0.###}s"
+                : $"移动输入:{MoveInputMode}";
         }
 
         public bool Evaluate(StateInterruptContext context)
@@ -127,9 +130,11 @@ namespace AsiSkillEditor.RunTime
                 case StateMoveInputMode.Stopped:
                     return !context.InputSnapshot.IsMoveInput && context.InputSnapshot.IsMoveInputPre;
                 case StateMoveInputMode.Inactive:
-                    return !context.InputSnapshot.IsMoveInput;
+                    return !context.InputSnapshot.IsMoveInput &&
+                           context.InputSnapshot.MoveInputInactiveDuration >= Mathf.Max(0f, MinimumDuration);
                 default:
-                    return context.InputSnapshot.IsMoveInput;
+                    return context.InputSnapshot.IsMoveInput &&
+                           context.InputSnapshot.MoveInputActiveDuration >= Mathf.Max(0f, MinimumDuration);
             }
         }
 
@@ -138,6 +143,52 @@ namespace AsiSkillEditor.RunTime
             return new StateMoveInputInterruptCondition
             {
                 MoveInputMode = MoveInputMode,
+                MinimumDuration = MinimumDuration,
+            };
+        }
+    }
+
+    /// <summary>
+    /// 当角色逻辑前向与当前世界空间输入方向的平面夹角大于阈值时成立。
+    /// 没有有效移动输入时不成立，避免静止状态误触发转身。
+    /// </summary>
+    [Serializable]
+    public sealed class CompareCharacterForwardToInputInterruptCondition : IStateInterruptCondition
+    {
+        [Range(0f, 180f)] public float AngleThreshold = 90f;
+
+        public string GetDisplayName()
+        {
+            return $"角色前向与输入夹角 > {Mathf.Clamp(AngleThreshold, 0f, 180f):0.###}°";
+        }
+
+        public bool Evaluate(StateInterruptContext context)
+        {
+            StateRuntimeContext runtimeContext = context?.RuntimeContext;
+            if (runtimeContext?.CharacterForwardProvider == null || runtimeContext.MoveInputDirectionProvider == null)
+            {
+                return false;
+            }
+
+            Vector3 forward = runtimeContext.CharacterForwardProvider();
+            Vector3 inputDirection = runtimeContext.MoveInputDirectionProvider();
+            Vector3 up = runtimeContext.Unit != null ? runtimeContext.Unit.transform.up : Vector3.up;
+            forward = Vector3.ProjectOnPlane(forward, up);
+            inputDirection = Vector3.ProjectOnPlane(inputDirection, up);
+            if (forward.sqrMagnitude <= Mathf.Epsilon || inputDirection.sqrMagnitude <= Mathf.Epsilon)
+            {
+                return false;
+            }
+
+            float angle = Vector3.Angle(forward, inputDirection);
+            return angle > Mathf.Clamp(AngleThreshold, 0f, 180f);
+        }
+
+        public IStateInterruptCondition Clone()
+        {
+            return new CompareCharacterForwardToInputInterruptCondition
+            {
+                AngleThreshold = AngleThreshold,
             };
         }
     }

@@ -82,9 +82,9 @@
     },
     "DefaultNextStateId": "",
     "Timeline": {
-        "Duration": 0.5166667103767395,
+        "Duration": 0.5333333611488342,
         "Animation": {
-            "TransitionDuration": 0.10000000149011612,
+            "TransitionDuration": 0.20000000298023225,
             "TransitionTimeUnit": 0,
             "FadeMode": 1,
             "StartTime": 0.0,
@@ -96,12 +96,18 @@
                 "TrackId": "de29c3c8d5ad447b8cf40a3da4f599dc",
                 "DisplayName": "打断轨道1",
                 "IsEnabled": true,
+                "Interrupts": []
+            },
+            {
+                "TrackId": "c6d59c93981f43748c08d3f09e214ab5",
+                "DisplayName": "打断轨道2",
+                "IsEnabled": true,
                 "Interrupts": [
                     {
                         "IsEnabled": true,
-                        "TargetStateId": "Run_End",
+                        "TargetStateId": "Turn_Back",
                         "TriggerTime": 0.0,
-                        "Duration": 0.5166667103767395,
+                        "Duration": 0.5333333611488342,
                         "ExecuteTime": 0.0,
                         "SortOrder": 0,
                         "CheckAllConditions": true,
@@ -114,6 +120,33 @@
                         "Conditions": [
                             {
                                 "rid": 1000
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "TrackId": "afdaa498dae64afe9a3ab9620a163300",
+                "DisplayName": "打断轨道3",
+                "IsEnabled": true,
+                "Interrupts": [
+                    {
+                        "IsEnabled": true,
+                        "TargetStateId": "Run_End",
+                        "TriggerTime": 0.0,
+                        "Duration": 0.5333333611488342,
+                        "ExecuteTime": 0.0,
+                        "SortOrder": 0,
+                        "CheckAllConditions": true,
+                        "UseTransitionOverride": false,
+                        "TransitionDuration": 0.0,
+                        "TransitionTimeUnit": 0,
+                        "TargetStartTime": 0.0,
+                        "TargetStartTimeUnit": 0,
+                        "TransitionPolicy": 0,
+                        "Conditions": [
+                            {
+                                "rid": 1001
                             }
                         ]
                     }
@@ -141,12 +174,24 @@
             {
                 "rid": 1000,
                 "type": {
+                    "class": "CompareCharacterForwardToInputInterruptCondition",
+                    "ns": "AsiSkillEditor.RunTime",
+                    "asm": "Assembly-CSharp"
+                },
+                "data": {
+                    "AngleThreshold": 175.0
+                }
+            },
+            {
+                "rid": 1001,
+                "type": {
                     "class": "StateMoveInputInterruptCondition",
                     "ns": "AsiSkillEditor.RunTime",
                     "asm": "Assembly-CSharp"
                 },
                 "data": {
-                    "MoveInputMode": 2
+                    "MoveInputMode": 3,
+                    "MinimumDuration": 0.05000000074505806
                 }
             }
         ]

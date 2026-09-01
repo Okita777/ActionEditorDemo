@@ -133,6 +133,12 @@ namespace AsiSkillEditor.RunTime
 
         /// <summary>KCC 最近一次更新产生的运动事实。</summary>
         public Func<CharacterMotionSnapshot> MotionSnapshotProvider;
+
+        /// <summary>角色逻辑前向，通常来自 KCC 所在角色根对象。</summary>
+        public Func<Vector3> CharacterForwardProvider;
+
+        /// <summary>当前输入帧按相机平面基准换算后的世界移动方向。</summary>
+        public Func<Vector3> MoveInputDirectionProvider;
     }
 
     /// <summary>
@@ -207,6 +213,12 @@ namespace AsiSkillEditor.RunTime
         /// 上一帧是否存在移动输入。
         /// </summary>
         public bool IsMoveInputPre;
+
+        /// <summary>移动输入连续有效的时间，单位为秒。</summary>
+        public float MoveInputActiveDuration;
+
+        /// <summary>移动输入连续无效的时间，单位为秒。</summary>
+        public float MoveInputInactiveDuration;
 
         /// <summary>
         /// 当前保持按住的动作集合。
@@ -924,7 +936,7 @@ namespace AsiSkillEditor.RunTime
                 return null;
             }
 
-            List<StateInterruptConfig> candidates = GetInterruptCandidates(activeState.Config);
+            List<StateInterruptCandidate> candidates = GetInterruptCandidates(activeState.Config);
             if (candidates == null || candidates.Count == 0)
             {
                 return null;
@@ -950,12 +962,14 @@ namespace AsiSkillEditor.RunTime
             float breakValue = _context.BreakValueProvider != null ? Mathf.Max(0f, _context.BreakValueProvider()) : 0f;
 
             StateTransitionRequest bestRequest = null;
+            int bestTrackPriority = int.MinValue;
             int bestSortOrder = int.MinValue;
             float bestTriggerTime = float.MaxValue;
 
             for (int index = 0; index < candidates.Count; index++)
             {
-                StateInterruptConfig interrupt = candidates[index];
+                StateInterruptCandidate candidate = candidates[index];
+                StateInterruptConfig interrupt = candidate.Interrupt;
                 if (!IsInterruptEligible(interrupt))
                 {
                     continue;
@@ -992,9 +1006,11 @@ namespace AsiSkillEditor.RunTime
                     continue;
                 }
 
-                if (interrupt.SortOrder > bestSortOrder ||
-                    (interrupt.SortOrder == bestSortOrder && interrupt.TriggerTime < bestTriggerTime))
+                if (candidate.TrackPriority > bestTrackPriority ||
+                    (candidate.TrackPriority == bestTrackPriority && interrupt.SortOrder > bestSortOrder) ||
+                    (candidate.TrackPriority == bestTrackPriority && interrupt.SortOrder == bestSortOrder && interrupt.TriggerTime < bestTriggerTime))
                 {
+                    bestTrackPriority = candidate.TrackPriority;
                     bestSortOrder = interrupt.SortOrder;
                     bestTriggerTime = interrupt.TriggerTime;
                     bestRequest = new StateTransitionRequest
@@ -1012,6 +1028,20 @@ namespace AsiSkillEditor.RunTime
             }
 
             return bestRequest;
+        }
+
+        private readonly struct StateInterruptCandidate
+        {
+            public StateInterruptCandidate(StateInterruptConfig interrupt, int trackPriority)
+            {
+                Interrupt = interrupt;
+                TrackPriority = trackPriority;
+            }
+
+            public StateInterruptConfig Interrupt { get; }
+
+            /// <summary>数值越大优先级越高；编辑器中越靠上的轨道数值越大。</summary>
+            public int TrackPriority { get; }
         }
 
         /// <summary>
@@ -1533,7 +1563,7 @@ namespace AsiSkillEditor.RunTime
 
         private bool IsTargetAllowedByCurrentInterrupts(string targetStateId, ActiveStateRuntime activeState)
         {
-            List<StateInterruptConfig> candidates = GetInterruptCandidates(activeState != null ? activeState.Config : null);
+            List<StateInterruptCandidate> candidates = GetInterruptCandidates(activeState != null ? activeState.Config : null);
             if (candidates == null || candidates.Count == 0)
             {
                 return false;
@@ -1550,7 +1580,7 @@ namespace AsiSkillEditor.RunTime
 
             for (int i = 0; i < candidates.Count; i++)
             {
-                StateInterruptConfig interrupt = candidates[i];
+                StateInterruptConfig interrupt = candidates[i].Interrupt;
                 if (interrupt != null &&
                     interrupt.IsEnabled &&
                     string.Equals(interrupt.TargetStateId, targetStateId, StringComparison.OrdinalIgnoreCase) &&
@@ -1569,14 +1599,14 @@ namespace AsiSkillEditor.RunTime
         /// </summary>
         /// <param name="stateConfig">状态配置。</param>
         /// <returns>中断候选列表；无时间线时返回 null。</returns>
-        private static List<StateInterruptConfig> GetInterruptCandidates(StateConfig stateConfig)
+        private static List<StateInterruptCandidate> GetInterruptCandidates(StateConfig stateConfig)
         {
             if (stateConfig == null || stateConfig.Timeline == null)
             {
                 return null;
             }
 
-            List<StateInterruptConfig> results = new List<StateInterruptConfig>();
+            List<StateInterruptCandidate> results = new List<StateInterruptCandidate>();
             
             //okita:这里为啥有两个收集result
             if (stateConfig.Timeline.InterruptTracks != null)
@@ -1594,7 +1624,8 @@ namespace AsiSkillEditor.RunTime
                         StateInterruptConfig interrupt = track.Interrupts[interruptIndex];
                         if (interrupt != null)
                         {
-                            results.Add(interrupt);
+                            // 列表索引越小，轨道在编辑器里越靠上，优先级越高。
+                            results.Add(new StateInterruptCandidate(interrupt, stateConfig.Timeline.InterruptTracks.Count - trackIndex));
                         }
                     }
                 }
@@ -1607,7 +1638,7 @@ namespace AsiSkillEditor.RunTime
                     StateInterruptConfig interrupt = stateConfig.Timeline.Interrupts[i];
                     if (interrupt != null)
                     {
-                        results.Add(interrupt);
+                        results.Add(new StateInterruptCandidate(interrupt, 0));
                     }
                 }
             }
@@ -1887,6 +1918,7 @@ namespace AsiSkillEditor.RunTime
 
             inputSnapshot.IsMoveInput = false;
             inputSnapshot.IsMoveInputPre = false;
+            inputSnapshot.MoveInputActiveDuration = 0f;
             return inputSnapshot;
         }
 

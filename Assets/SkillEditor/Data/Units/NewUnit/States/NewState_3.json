@@ -99,7 +99,7 @@
                 "Interrupts": [
                     {
                         "IsEnabled": true,
-                        "TargetStateId": "Run_Start",
+                        "TargetStateId": "Walk_Start",
                         "TriggerTime": 0.027602750808000566,
                         "Duration": 3.655730962753296,
                         "ExecuteTime": 0.0,
