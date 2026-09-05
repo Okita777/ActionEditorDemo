@@ -137,6 +137,7 @@
     <Compile Include="Assets\Scripts\ActionEditorCore\InputSystem\Runtime\CharacterInputMapConfig.cs" />
     <Compile Include="Assets\Scripts\ActionEditorCore\SkillEditor\Runtime\Runtime\State\TimelineEvent\TimelineMotionBridgeUtility.cs" />
     <Compile Include="Assets\Scripts\ActionEditorCore\camera\GameplayCameraRigController.cs" />
+    <Compile Include="Assets\Scripts\test.cs" />
     <Compile Include="Assets\Scripts\ActionEditorCore\camera\CameraFeedbackService.cs" />
     <Compile Include="Assets\Scripts\ActionEditorCore\character_motion\IMotionSource.cs" />
     <Compile Include="Assets\Scripts\ActionEditorCore\SkillEditor\Runtime\Config\MetaSkill\MetaSkillCondition\AttributeCompare_SkillConditionData.cs" />
@@ -194,6 +195,7 @@
     <Compile Include="Assets\Scripts\ActionEditorCore\SkillEditor\Runtime\Runtime\Skill\SkillActionRuntimeFactory.cs" />
     <Compile Include="Assets\Scripts\ActionEditorCore\SkillEditor\Runtime\Runtime\CharacterStateBuilder.cs" />
     <Compile Include="Assets\Scripts\ActionEditorCore\SkillEditor\Runtime\Runtime\Skill\SkillRuntimeDataPath.cs" />
+    <Compile Include="Assets\Scripts\testAnimancer.cs" />
     <Compile Include="Assets\Scripts\ActionEditorCore\SkillEditor\Runtime\Runtime\State\TimelineVfxRuntime.cs" />
     <Compile Include="Assets\Scripts\ActionEditorCore\SkillEditor\Runtime\Config\SkillActionDataAttribute.cs" />
     <Compile Include="Assets\Scripts\ActionEditorCore\SkillEditor\Runtime\Runtime\Feedback\UnitHitEventHub.cs" />

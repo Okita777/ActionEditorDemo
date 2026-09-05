@@ -55,13 +55,15 @@ namespace ActionEditor.CharacterMotion
         [SerializeField] private Vector3 _observedSolvedLocomotionVelocity;
         [SerializeField] private bool _observedHardTurn;
         [SerializeField] private bool _observedStableGrounded;
+        [SerializeField] private StateTranslationMode _observedTranslationMode;
+        [SerializeField] private StateRotationMode _observedRotationMode;
 
         [SerializeField] private KinematicCharacterMotor _motor;
         [SerializeField] private CharacterVelocity _characterVelocity;
         [SerializeField] private CharacterRotation _characterRotation;
         [SerializeField] private ForceSystem _forceSystem;
         [SerializeField] private InputMotionSource _inputMotionSource;
-        [SerializeField] private MonoBehaviour[] _sourceBehaviours;
+        [SerializeField] private MonoBehaviour[] _sourceBehaviours = new MonoBehaviour[0];
 
         private readonly List<IMotionSource> _motionSources = new List<IMotionSource>();
         private Vector3 _locomotionVelocity;
@@ -258,12 +260,15 @@ namespace ActionEditor.CharacterMotion
 
             if (_localTimeScale <= 0f)
             {
+                DiscardPendingRootMotion("Character local time scale is zero");
                 return;
             }
 
             deltaTime *= _localTimeScale;
 
             StateMovementProfile profile = _movementProfile ?? StateMovementProfile.CreateDefault();
+            _observedTranslationMode = profile.TranslationMode;
+            _observedRotationMode = profile.RotationMode;
             bool allowsInputTranslation = profile.TranslationMode == StateTranslationMode.Input ||
                 profile.TranslationMode == StateTranslationMode.Hybrid;
             bool allowsRootTranslation = profile.TranslationMode == StateTranslationMode.RootMotion ||
@@ -416,6 +421,17 @@ namespace ActionEditor.CharacterMotion
             _motor?.ForceUnground(Mathf.Max(0f, duration));
         }
 
+        private void DiscardPendingRootMotion(string reason)
+        {
+            for (int i = 0; i < _motionSources.Count; i++)
+            {
+                if (_motionSources[i] is RootMotionSource rootMotionSource)
+                {
+                    rootMotionSource.DiscardPending(reason);
+                }
+            }
+        }
+
         private void ApplyHybridInputAxisMask(StateMovementProfile profile)
         {
             if (profile == null || profile.TranslationMode != StateTranslationMode.Hybrid ||
@@ -496,6 +512,14 @@ namespace ActionEditor.CharacterMotion
         {
             if (_characterRotation == null || _localTimeScale <= 0f)
             {
+                return;
+            }
+
+            // Root Motion 是动画已经确定的本次旋转增量，不是需要角速度追踪的目标朝向。
+            // 直接交给 KCC 应用，避免 RotateTowards 截掉快速转身增量且无法在下一帧补回。
+            if (_movementProfile != null && _movementProfile.RotationMode == StateRotationMode.RootMotion)
+            {
+                currentRotation = Quaternion.Normalize(_characterRotation.RotationDelta * currentRotation);
                 return;
             }
 

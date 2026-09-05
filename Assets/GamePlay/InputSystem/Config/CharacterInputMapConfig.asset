@@ -17,6 +17,8 @@ MonoBehaviour:
     ValueType: 0
   - ActionName: Evade
     ValueType: 0
+  - ActionName: test
+    ValueType: 0
   ButtonBindings:
   - ActionName: CommonAttack
     PcKey: 323
@@ -25,4 +27,8 @@ MonoBehaviour:
   - ActionName: Evade
     PcKey: 122
     GamepadButton: 3
+    LegacyMouseButton: -1
+  - ActionName: test
+    PcKey: 32
+    GamepadButton: 0
     LegacyMouseButton: -1

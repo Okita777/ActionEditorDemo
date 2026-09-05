@@ -80,46 +80,18 @@
         "AllowGravity": true,
         "AirControl": 1.0
     },
-    "DefaultNextStateId": "Run",
+    "DefaultNextStateId": "Idle",
     "Timeline": {
-        "Duration": 1.2840313911437989,
+        "Duration": 1.1500000953674317,
         "Animation": {
-            "TransitionDuration": 0.10000000149011612,
+            "TransitionDuration": 0.20000000298023225,
             "TransitionTimeUnit": 0,
             "FadeMode": 1,
             "StartTime": 0.0,
             "StartTimeUnit": 0
         },
         "Tracks": [],
-        "InterruptTracks": [
-            {
-                "TrackId": "df33e031b95f427ea24912f2b9348264",
-                "DisplayName": "打断轨道1",
-                "IsEnabled": true,
-                "Interrupts": [
-                    {
-                        "IsEnabled": true,
-                        "TargetStateId": "Run_End",
-                        "TriggerTime": 0.0,
-                        "Duration": 1.2840313911437989,
-                        "ExecuteTime": 0.0,
-                        "SortOrder": 0,
-                        "CheckAllConditions": true,
-                        "UseTransitionOverride": false,
-                        "TransitionDuration": 0.0,
-                        "TransitionTimeUnit": 0,
-                        "TargetStartTime": 0.0,
-                        "TargetStartTimeUnit": 0,
-                        "TransitionPolicy": 0,
-                        "Conditions": [
-                            {
-                                "rid": 1000
-                            }
-                        ]
-                    }
-                ]
-            }
-        ],
+        "InterruptTracks": [],
         "Interrupts": []
     },
     "Tags": {
@@ -137,18 +109,6 @@
     "SafeFallbackStateId": "",
     "references": {
         "version": 2,
-        "RefIds": [
-            {
-                "rid": 1000,
-                "type": {
-                    "class": "StateMoveInputInterruptCondition",
-                    "ns": "AsiSkillEditor.RunTime",
-                    "asm": "Assembly-CSharp"
-                },
-                "data": {
-                    "MoveInputMode": 3
-                }
-            }
-        ]
+        "RefIds": []
     }
 }

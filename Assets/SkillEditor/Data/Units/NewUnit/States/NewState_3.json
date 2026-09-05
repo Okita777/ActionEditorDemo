@@ -146,7 +146,8 @@
                     "asm": "Assembly-CSharp"
                 },
                 "data": {
-                    "MoveInputMode": 0
+                    "MoveInputMode": 0,
+                    "MinimumDuration": 0.0
                 }
             }
         ]

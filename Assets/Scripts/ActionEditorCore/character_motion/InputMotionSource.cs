@@ -23,6 +23,7 @@ namespace ActionEditor.CharacterMotion
     /// <summary>
     /// 输入运动源。将玩家输入转换为速度与朝向影响。
     /// </summary>
+    [DisallowMultipleComponent]
     public sealed class InputMotionSource : MonoBehaviour, IMotionSource
     {
         public bool EnableMove = true;

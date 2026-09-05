@@ -93,12 +93,6 @@
         "Tracks": [],
         "InterruptTracks": [
             {
-                "TrackId": "de29c3c8d5ad447b8cf40a3da4f599dc",
-                "DisplayName": "打断轨道1",
-                "IsEnabled": true,
-                "Interrupts": []
-            },
-            {
                 "TrackId": "c6d59c93981f43748c08d3f09e214ab5",
                 "DisplayName": "打断轨道2",
                 "IsEnabled": true,

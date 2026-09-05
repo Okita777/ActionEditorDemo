@@ -64,7 +64,7 @@
         "LocomotionSpeedMatchSharpness": 18.0,
         "LocomotionSpeedMatchDeadZone": 0.009999999776482582
     },
-    "AffectsLocomotion": true,
+    "AffectsLocomotion": false,
     "MovementProfile": {
         "TranslationMode": 0,
         "RotationMode": 0,

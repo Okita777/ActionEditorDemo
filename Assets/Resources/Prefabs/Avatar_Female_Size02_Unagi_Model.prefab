@@ -394,6 +394,8 @@ MonoBehaviour:
   _observedSolvedLocomotionVelocity: {x: 0, y: 0, z: 0}
   _observedHardTurn: 0
   _observedStableGrounded: 0
+  _observedTranslationMode: 0
+  _observedRotationMode: 0
   _motor: {fileID: 0}
   _characterVelocity: {fileID: 0}
   _characterRotation: {fileID: 0}
@@ -498,8 +500,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   EnableMove: 1
   EnableRotate: 1
+  YawOnly: 1
   PositionScale: 1
   RotationScale: 1
+  _observedCapturedSampleCount: 0
+  _observedPendingPositionDelta: {x: 0, y: 0, z: 0}
+  _observedPendingRotationEuler: {x: 0, y: 0, z: 0}
+  _observedConsumedPositionDelta: {x: 0, y: 0, z: 0}
+  _observedConsumedRotationEuler: {x: 0, y: 0, z: 0}
+  _observedLastConsumeFrame: -1
+  _observedLastDiscardReason: 
 --- !u!114 &6074517979783947446
 MonoBehaviour:
   m_ObjectHideFlags: 0

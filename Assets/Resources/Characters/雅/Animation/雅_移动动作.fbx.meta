@@ -124,7 +124,7 @@ ModelImporter:
       takeName: Avatar_Female_Size02_Unagi_Ani_Run
       internalID: -7311692990479680680
       firstFrame: 0
-      lastFrame: 241
+      lastFrame: 31
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -211,7 +211,7 @@ ModelImporter:
       takeName: Avatar_Female_Size02_Unagi_Ani_Run_Start
       internalID: 399448047040821400
       firstFrame: 0
-      lastFrame: 241
+      lastFrame: 88
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -240,7 +240,7 @@ ModelImporter:
       takeName: Avatar_Female_Size02_Unagi_Ani_Walk
       internalID: -229413099510903425
       firstFrame: 0
-      lastFrame: 241
+      lastFrame: 36
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -385,7 +385,7 @@ ModelImporter:
       takeName: Avatar_Female_Size02_Unagi_Ani_Run_End
       internalID: -865967704773111046
       firstFrame: 0
-      lastFrame: 707
+      lastFrame: 223
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -414,7 +414,7 @@ ModelImporter:
       takeName: Avatar_Female_Size02_Unagi_Ani_Walk_Start
       internalID: -8292161441776038206
       firstFrame: 0
-      lastFrame: 707
+      lastFrame: 65
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -443,7 +443,7 @@ ModelImporter:
       takeName: Avatar_Female_Size02_Unagi_Ani_Idle
       internalID: 1106022805061252040
       firstFrame: 0
-      lastFrame: 707
+      lastFrame: 232
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
