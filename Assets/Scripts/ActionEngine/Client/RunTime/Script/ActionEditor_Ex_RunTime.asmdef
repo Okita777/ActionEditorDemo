@@ -1,0 +1,50 @@
+{
+    "name": "ActionEditor_Ex_RunTime",
+    "rootNamespace": "",
+    "references": [
+        "GUID:72bbd18e87e026d4babf4b706d8f5382",
+        "GUID:50e5e300ee1bc8c458e7b4f757c29ab7",
+        "GUID:4307f53044263cf4b835bd812fc161a4",
+        "GUID:30817c1a0e6d646d99c048fc403f5979",
+        "GUID:e34a5702dd353724aa315fb8011f08c3",
+        "GUID:9e24947de15b9834991c9d8411ea37cf",
+        "GUID:84651a3751eca9349aac36a66bba901b",
+        "GUID:de03834a73ee7cf4caff2d2847c5ebf7",
+        "GUID:15fc0a57446b3144c949da3e2b9737a9",
+        "GUID:0c752da273b17c547ae705acf0f2adf2",
+        "GUID:457756d89b35d2941b3e7b37b4ece6f1",
+        "GUID:d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9",
+        "spine-csharp",
+        "spine-unity"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.cinemachine",
+            "expression": "",
+            "define": "Cinemachine"
+        },
+        {
+            "name": "com.tuyoogame.yooasset",
+            "expression": "",
+            "define": "YooAsset"
+        },
+        {
+            "name": "com.unity.addressables",
+            "expression": "",
+            "define": "Addressables"
+        },
+        {
+            "name": "Select...",
+            "expression": "",
+            "define": "PuppetMaster"
+        }
+    ],
+    "noEngineReferences": false
+}

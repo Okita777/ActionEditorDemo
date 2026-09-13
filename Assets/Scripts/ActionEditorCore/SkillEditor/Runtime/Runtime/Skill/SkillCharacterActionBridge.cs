@@ -32,11 +32,17 @@ namespace AsiSkillEditor.RunTime
             public Vector2 DirectionalParameter;
         }
 
-        [SerializeField] private Animator _animator;
-        [SerializeField] private AnimancerComponent _animancer;
-        [SerializeField] private AvatarMask _upperBodyMask;
-        [SerializeField] private AvatarMask _additiveMask;
-        [SerializeField] private CustomCharacterController _characterController;
+        [SerializeField] private Animator _animator = null;
+        [SerializeField] private AnimancerComponent _animancer = null;
+        [SerializeField] private AvatarMask _upperBodyMask = null;
+        [SerializeField] private AvatarMask _additiveMask = null;
+        [SerializeField] private CustomCharacterController _characterController = null;
+
+        [Header("Runtime Transition Observation")]
+        [SerializeField] private string _observedTransitionSource = string.Empty;
+        [SerializeField] private string _observedTransitionTarget = string.Empty;
+        [SerializeField] private float _observedBlendDuration;
+        [SerializeField] private float _observedTargetAnimationOffset;
 
         private readonly Dictionary<AnimationLayerType, AnimationLayerRuntime> _layerRuntimes =
             new Dictionary<AnimationLayerType, AnimationLayerRuntime>();
@@ -69,9 +75,54 @@ namespace AsiSkillEditor.RunTime
 
         public void PlayStateAnimation(SkillContext context, StateConfig stateConfig, StateInterruptConfig interruptConfig)
         {
-            if (!TryPlayStateAnimation(stateConfig, interruptConfig))
+            if (!TryPlayStateAnimation(stateConfig, null, null, 0f))
             {
                  Debug.LogWarning($"SkillCharacterActionBridge: failed to play state animation, stateId='{stateConfig?.StateId ?? "null"}'.", this);
+            }
+        }
+
+        public bool CanPlayStateAnimation(StateConfig stateConfig)
+        {
+            if (stateConfig == null || string.IsNullOrEmpty(GetStateAnimationKey(stateConfig)))
+            {
+                return false;
+            }
+
+            if (stateConfig.AnimationMode == StateAnimationMode.DirectionalMixer2D)
+            {
+                StateDirectionalMixer2DConfig mixerConfig = stateConfig.DirectionalMixer2D ?? StateDirectionalMixer2DConfig.CreateDefault();
+                return TryBuildDirectionalMixerData(mixerConfig, out _, out _, out _);
+            }
+
+            return SkillAnimationRuntimeCatalog.LoadClip(stateConfig.AnimationClipPath) != null;
+        }
+
+        public void TransitionStateAnimation(SkillContext context, StateAnimationTransitionContext transitionContext)
+        {
+            if (transitionContext == null || transitionContext.TargetState == null)
+            {
+                return;
+            }
+
+            StateAnimationTransitionConfig transition = transitionContext.Transition ?? StateAnimationTransitionConfig.CreateDefault();
+            if (transitionContext.SourceState != null &&
+                GetOutputLayer(transitionContext.SourceState) != GetOutputLayer(transitionContext.TargetState))
+            {
+                StopStateAnimation(context, transitionContext.SourceState, true);
+            }
+
+            float targetAnimationOffset = ResolveTargetAnimationOffset(transition, transitionContext.TargetState);
+            _observedTransitionSource = transitionContext.SourceState != null ? transitionContext.SourceState.StateId : string.Empty;
+            _observedTransitionTarget = transitionContext.TargetState.StateId ?? string.Empty;
+            _observedBlendDuration = ResolveBlendDuration(transition, transitionContext.SourceState);
+            _observedTargetAnimationOffset = targetAnimationOffset;
+            if (!TryPlayStateAnimation(
+                    transitionContext.TargetState,
+                    transition,
+                    transitionContext.SourceState,
+                    Mathf.Max(0f, transitionContext.TargetStateTime) + targetAnimationOffset))
+            {
+                Debug.LogWarning($"SkillCharacterActionBridge: failed to transition state animation, source='{transitionContext.SourceState?.StateId ?? "null"}', target='{transitionContext.TargetState.StateId}'.", this);
             }
         }
 
@@ -314,7 +365,11 @@ namespace AsiSkillEditor.RunTime
             };
         }
 
-        private bool TryPlayStateAnimation(StateConfig stateConfig, StateInterruptConfig interruptConfig)
+        private bool TryPlayStateAnimation(
+            StateConfig stateConfig,
+            StateAnimationTransitionConfig transition,
+            StateConfig sourceState,
+            float targetTimelineTime)
         {
             string animationKey = GetStateAnimationKey(stateConfig);
             if (stateConfig == null || string.IsNullOrEmpty(animationKey))
@@ -343,7 +398,7 @@ namespace AsiSkillEditor.RunTime
 
             if (stateConfig.AnimationMode == StateAnimationMode.DirectionalMixer2D)
             {
-                if (!TryPlayDirectionalMixer(runtime, stateConfig, interruptConfig))
+                if (!TryPlayDirectionalMixer(runtime, stateConfig, transition, sourceState, targetTimelineTime))
                 {
                     return false;
                 }
@@ -357,13 +412,18 @@ namespace AsiSkillEditor.RunTime
                     return false;
                 }
 
-                PlayStateClip(runtime, stateConfig, interruptConfig, clip, animationKey);
+                PlayStateClip(runtime, stateConfig, transition, sourceState, targetTimelineTime, clip, animationKey);
             }
 
             return true;
         }
 
-        private bool TryPlayDirectionalMixer(AnimationLayerRuntime runtime, StateConfig stateConfig, StateInterruptConfig interruptConfig)
+        private bool TryPlayDirectionalMixer(
+            AnimationLayerRuntime runtime,
+            StateConfig stateConfig,
+            StateAnimationTransitionConfig transition,
+            StateConfig sourceState,
+            float targetTimelineTime)
         {
             if (runtime == null || stateConfig == null)
             {
@@ -378,8 +438,7 @@ namespace AsiSkillEditor.RunTime
             }
 
             TimelineAnimationConfig animationConfig = GetStateAnimationConfig(stateConfig);
-            float fadeDuration = GetStateFadeDuration(animationConfig, interruptConfig, null);
-            FadeMode fadeMode = ConvertFadeMode(animationConfig != null ? animationConfig.FadeMode : AnimancerFadeMode.FixedDuration);
+            float fadeDuration = ResolveBlendDuration(transition, sourceState);
             string stateKey = BuildLayerStateKey(runtime.LayerType, stateConfig, "DirectionalMixer2D");
 
             DirectionalMixerState mixerState = null;
@@ -404,17 +463,28 @@ namespace AsiSkillEditor.RunTime
             Vector2 initialParameter = ResolveDirectionalMixerParameter();
             mixerState.Parameter = initialParameter;
 
+            float startTime = GetDirectionalMixerStartTime(animationConfig, clips, targetTimelineTime);
+            StateAnimationProfile profile = stateConfig.AnimationProfile ?? new StateAnimationProfile();
+            for (int i = 0; i < mixerState.ChildCount; i++)
+            {
+                AnimancerState child = mixerState.GetChild(i);
+                if (child != null)
+                {
+                    child.Time = startTime;
+                    child.Speed = Mathf.Max(0f, profile.Speed) * _playbackScale;
+                }
+            }
+
             AnimancerState playedState = fadeDuration > 0f
-                ? runtime.Layer.Play(mixerState, fadeDuration, fadeMode)
+                ? runtime.Layer.Play(mixerState, fadeDuration, FadeMode.FixedDuration)
                 : runtime.Layer.Play(mixerState);
             if (playedState == null)
             {
                 return false;
             }
 
-            StateAnimationProfile profile = stateConfig.AnimationProfile ?? new StateAnimationProfile();
             float layerWeight = ResolveLayerWeight(profile);
-            runtime.Layer.StartFade(layerWeight, fadeDuration);
+            ApplyLayerWeightForStateTransition(runtime, sourceState, stateConfig, layerWeight, fadeDuration);
             runtime.CurrentState = playedState;
             runtime.CurrentClip = null;
             runtime.CurrentDirectionalMixer = mixerState;
@@ -432,24 +502,18 @@ namespace AsiSkillEditor.RunTime
             runtime.DirectionalParameterSmoothSpeed = Mathf.Max(0f, mixerConfig.ParameterSmoothSpeed);
             runtime.DirectionalParameter = initialParameter;
 
-            float startTime = GetDirectionalMixerStartTime(animationConfig, clips);
-            for (int i = 0; i < mixerState.ChildCount; i++)
-            {
-                AnimancerState child = mixerState.GetChild(i);
-                if (child == null)
-                {
-                    continue;
-                }
-
-                child.Time = startTime;
-                child.Speed = runtime.BasePlaybackSpeed * _playbackScale;
-            }
-
             RefreshRootMotionOwner();
             return true;
         }
 
-        private void PlayStateClip(AnimationLayerRuntime runtime, StateConfig stateConfig, StateInterruptConfig interruptConfig, AnimationClip clip, string animationKey)
+        private void PlayStateClip(
+            AnimationLayerRuntime runtime,
+            StateConfig stateConfig,
+            StateAnimationTransitionConfig transition,
+            StateConfig sourceState,
+            float targetTimelineTime,
+            AnimationClip clip,
+            string animationKey)
         {
             ResolveAnimationComponents();
             if (_animancer == null || clip == null || runtime == null || runtime.Layer == null)
@@ -458,13 +522,16 @@ namespace AsiSkillEditor.RunTime
             }
 
             TimelineAnimationConfig animationConfig = GetStateAnimationConfig(stateConfig);
-            float fadeDuration = GetStateFadeDuration(animationConfig, interruptConfig, clip);
-            FadeMode fadeMode = ConvertFadeMode(animationConfig != null ? animationConfig.FadeMode : AnimancerFadeMode.FixedDuration);
+            float fadeDuration = ResolveBlendDuration(transition, sourceState);
             string stateKey = BuildLayerStateKey(runtime.LayerType, stateConfig, animationKey);
             AnimancerState animationState = runtime.Layer.GetOrCreateState(stateKey, clip);
 
+            StateAnimationProfile profile = stateConfig.AnimationProfile ?? new StateAnimationProfile();
+            animationState.Time = GetAnimationSampleTime(animationConfig, clip, targetTimelineTime);
+            animationState.Speed = Mathf.Max(0f, profile.Speed) * _playbackScale;
+
             animationState = fadeDuration > 0f
-                ? runtime.Layer.Play(animationState, fadeDuration, fadeMode)
+                ? runtime.Layer.Play(animationState, fadeDuration, FadeMode.FixedDuration)
                 : runtime.Layer.Play(animationState);
 
             if (animationState == null)
@@ -472,11 +539,8 @@ namespace AsiSkillEditor.RunTime
                 return;
             }
 
-            StateAnimationProfile profile = stateConfig.AnimationProfile ?? new StateAnimationProfile();
-            animationState.Time = GetAnimationSampleTime(animationConfig, clip, 0f);
-            animationState.Speed = Mathf.Max(0f, profile.Speed) * _playbackScale;
             float layerWeight = ResolveLayerWeight(profile);
-            runtime.Layer.StartFade(layerWeight, fadeDuration);
+            ApplyLayerWeightForStateTransition(runtime, sourceState, stateConfig, layerWeight, fadeDuration);
             runtime.CurrentState = animationState;
             runtime.CurrentClip = clip;
             runtime.CurrentStateId = stateConfig.StateId ?? string.Empty;
@@ -663,7 +727,7 @@ namespace AsiSkillEditor.RunTime
             thresholds.Add(threshold);
         }
 
-        private static float GetDirectionalMixerStartTime(TimelineAnimationConfig animationConfig, AnimationClip[] clips)
+        private static float GetDirectionalMixerStartTime(TimelineAnimationConfig animationConfig, AnimationClip[] clips, float timelineTime)
         {
             if (animationConfig == null || clips == null || clips.Length == 0)
             {
@@ -693,7 +757,38 @@ namespace AsiSkillEditor.RunTime
                 startTime *= minClipLength;
             }
 
-            return Mathf.Clamp(startTime, 0f, minClipLength);
+            return Mathf.Clamp(startTime + Mathf.Max(0f, timelineTime), 0f, minClipLength);
+        }
+
+        private static void ApplyLayerWeightForStateTransition(
+            AnimationLayerRuntime runtime,
+            StateConfig sourceState,
+            StateConfig targetState,
+            float targetWeight,
+            float fadeDuration)
+        {
+            if (runtime == null || runtime.Layer == null)
+            {
+                return;
+            }
+
+            bool sameOutputLayer = sourceState != null &&
+                                   GetOutputLayer(sourceState) == GetOutputLayer(targetState);
+            if (sameOutputLayer)
+            {
+                // 同层 State CrossFade 已经处理 Source/Target 权重，不能再对整个 Layer 做 Fade。
+                runtime.Layer.Weight = targetWeight;
+                return;
+            }
+
+            if (fadeDuration > 0f && runtime.Layer.Weight <= 0f)
+            {
+                runtime.Layer.StartFade(targetWeight, fadeDuration);
+            }
+            else
+            {
+                runtime.Layer.Weight = targetWeight;
+            }
         }
 
         private static AnimationLayerType GetOutputLayer(StateConfig stateConfig)
@@ -769,7 +864,7 @@ namespace AsiSkillEditor.RunTime
                 return 0f;
             }
 
-            if (animationConfig.TransitionTimeUnit == AnimationTransitionTimeUnit.NormalizedDuration && clip != null)
+            if (animationConfig.TransitionTimeUnit == AnimationTransitionTimeUnit.NormalizedSourceDuration && clip != null)
             {
                 duration *= Mathf.Max(0f, clip.length);
             }
@@ -777,20 +872,66 @@ namespace AsiSkillEditor.RunTime
             return Mathf.Max(0f, duration);
         }
 
-        private static float GetStateFadeDuration(TimelineAnimationConfig animationConfig, StateInterruptConfig interruptConfig, AnimationClip clip)
+        private static float ResolveBlendDuration(StateAnimationTransitionConfig transition, StateConfig sourceState)
         {
-            if (interruptConfig == null || !interruptConfig.UseTransitionOverride)
+            if (transition == null)
             {
-                return GetFadeDuration(animationConfig, clip);
+                return 0f;
             }
 
-            float duration = Mathf.Max(0f, interruptConfig.TransitionDuration);
-            if (interruptConfig.TransitionTimeUnit == AnimationTransitionTimeUnit.NormalizedDuration && clip != null)
+            float duration = Mathf.Max(0f, transition.BlendDuration);
+            if (transition.BlendDurationUnit != AnimationTransitionTimeUnit.NormalizedSourceDuration)
             {
-                duration *= Mathf.Max(0f, clip.length);
+                return duration;
             }
 
-            return duration;
+            float sourceDuration = ResolveStateAnimationDuration(sourceState);
+            return duration * sourceDuration;
+        }
+
+        private static float ResolveStateAnimationDuration(StateConfig stateConfig)
+        {
+            if (stateConfig == null)
+            {
+                return 0f;
+            }
+
+            if (stateConfig.AnimationMode == StateAnimationMode.SingleClip)
+            {
+                AnimationClip clip = SkillAnimationRuntimeCatalog.LoadClip(stateConfig.AnimationClipPath);
+                if (clip == null)
+                {
+                    return 0f;
+                }
+
+                float startTime = GetAnimationSampleTime(GetStateAnimationConfig(stateConfig), clip, 0f);
+                float speed = Mathf.Max(0.0001f, stateConfig.AnimationProfile != null ? stateConfig.AnimationProfile.Speed : 1f);
+                return Mathf.Max(0f, clip.length - startTime) / speed;
+            }
+
+            return stateConfig.Timeline != null ? Mathf.Max(0f, stateConfig.Timeline.Duration) : 0f;
+        }
+
+        private static float ResolveTargetAnimationOffset(StateAnimationTransitionConfig transition, StateConfig targetState)
+        {
+            if (transition == null)
+            {
+                return 0f;
+            }
+
+            float offset = Mathf.Max(0f, transition.TargetAnimationOffset);
+            if (transition.TargetAnimationOffsetUnit != AnimationStartTimeUnit.NormalizedTime)
+            {
+                return offset;
+            }
+
+            if (targetState == null || targetState.AnimationMode != StateAnimationMode.SingleClip)
+            {
+                return 0f;
+            }
+
+            AnimationClip clip = SkillAnimationRuntimeCatalog.LoadClip(targetState.AnimationClipPath);
+            return clip != null ? offset * Mathf.Max(0f, clip.length) : 0f;
         }
 
         private static float GetAnimationSampleTime(TimelineAnimationConfig animationConfig, AnimationClip clip, float timelineTime)

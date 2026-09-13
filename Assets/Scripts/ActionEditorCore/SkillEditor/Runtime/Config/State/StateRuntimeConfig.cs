@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using UnityEngine;
 
 namespace AsiSkillEditor.RunTime
@@ -33,11 +34,12 @@ namespace AsiSkillEditor.RunTime
         public float ExecuteTime = 0f;
         public int SortOrder = 0;
         public bool CheckAllConditions = true;
+        [OptionalField] public StateAnimationTransitionConfig Transition = StateAnimationTransitionConfig.CreateDefault();
+
+        // 旧字段仅用于迁移已有资源。
         public bool UseTransitionOverride = false;
         public float TransitionDuration = 0f;
         public AnimationTransitionTimeUnit TransitionTimeUnit = AnimationTransitionTimeUnit.FixedSeconds;
-        public float TargetStartTime = 0f;
-        public AnimationStartTimeUnit TargetStartTimeUnit = AnimationStartTimeUnit.FixedSeconds;
         public StateTransitionPolicy TransitionPolicy = StateTransitionPolicy.SameLayerOnly;
         [SerializeReference] public List<IStateInterruptCondition> Conditions = new List<IStateInterruptCondition>();
     }

@@ -81,6 +81,15 @@
         "AirControl": 1.0
     },
     "DefaultNextStateId": "Run",
+    "DefaultTransition": {
+        "IsConfigured": true,
+        "ExitTime": 0.9300000071525574,
+        "ExitTimeUnit": 1,
+        "BlendDuration": 0.10000000149011612,
+        "BlendDurationUnit": 0,
+        "TargetAnimationOffset": 0.0,
+        "TargetAnimationOffsetUnit": 0
+    },
     "Timeline": {
         "Duration": 1.1500000953674317,
         "Animation": {
@@ -105,6 +114,15 @@
                         "ExecuteTime": 0.0,
                         "SortOrder": 0,
                         "CheckAllConditions": true,
+                        "Transition": {
+                            "IsConfigured": false,
+                            "ExitTime": 1.0,
+                            "ExitTimeUnit": 1,
+                            "BlendDuration": 0.10000000149011612,
+                            "BlendDurationUnit": 0,
+                            "TargetAnimationOffset": 0.0,
+                            "TargetAnimationOffsetUnit": 0
+                        },
                         "UseTransitionOverride": false,
                         "TransitionDuration": 0.0,
                         "TransitionTimeUnit": 0,

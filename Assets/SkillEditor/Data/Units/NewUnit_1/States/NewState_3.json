@@ -84,7 +84,7 @@
     "Timeline": {
         "Duration": 0.4333333671092987,
         "Animation": {
-            "TransitionDuration": 0.10000000149011612,
+            "TransitionDuration": 0.0,
             "TransitionTimeUnit": 0,
             "FadeMode": 1,
             "StartTime": 0.0,

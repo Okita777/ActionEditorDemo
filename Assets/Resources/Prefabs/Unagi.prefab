@@ -498,6 +498,10 @@ MonoBehaviour:
   _upperBodyMask: {fileID: 0}
   _additiveMask: {fileID: 0}
   _characterController: {fileID: 0}
+  _observedTransitionSource: 
+  _observedTransitionTarget: 
+  _observedBlendDuration: 0
+  _observedTargetAnimationOffset: 0
 --- !u!114 &6102112458490040006
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,0 +1,20 @@
+{
+    "name": "AsiActionNet_RunTime",
+    "rootNamespace": "AsiTimeLine.Net",
+    "references": [
+        "GUID:72bbd18e87e026d4babf4b706d8f5382",
+        "GUID:815b739d7833d1441b1f620b113a9436",
+        "GUID:7c88a4a7926ee5145ad2dfa06f454c67"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "FISHNET"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

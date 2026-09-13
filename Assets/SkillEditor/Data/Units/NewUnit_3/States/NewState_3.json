@@ -81,10 +81,19 @@
         "AirControl": 1.0
     },
     "DefaultNextStateId": "Run",
+    "DefaultTransition": {
+        "IsConfigured": true,
+        "ExitTime": 0.8314607,
+        "ExitTimeUnit": 1,
+        "BlendDuration": 0.25,
+        "BlendDurationUnit": 0,
+        "TargetAnimationOffset": 0.0,
+        "TargetAnimationOffsetUnit": 1
+    },
     "Timeline": {
         "Duration": 1.4833334684371949,
         "Animation": {
-            "TransitionDuration": 0.20000000298023225,
+            "TransitionDuration": 0.10000000149011612,
             "TransitionTimeUnit": 0,
             "FadeMode": 1,
             "StartTime": 0.0,

@@ -59,6 +59,9 @@ namespace AsiSkillEditor.RunTime
         /// </summary>
         public StateInterruptConfig InterruptConfig;
 
+        /// <summary>本次源状态到目标状态的动画过渡配置。</summary>
+        public StateAnimationTransitionConfig AnimationTransition;
+
         /// <summary>
         /// 是否忽略当前状态的中断规则。
         /// </summary>
@@ -755,6 +758,7 @@ namespace AsiSkillEditor.RunTime
                     TargetStateId = defaultNextStateId,
                     IgnoreInterruptRules = true,
                     RequestedStartTime = 0f,
+                    AnimationTransition = ResolveDefaultTransition(activeState.Config),
                     SkillTransitionContext = BuildNextSkillTransitionContext(activeState, defaultNextStateId),
                 });
 
@@ -775,6 +779,7 @@ namespace AsiSkillEditor.RunTime
                         TargetStateId = defaultNextStateId,
                         IgnoreInterruptRules = true,
                         RequestedStartTime = 0f,
+                        AnimationTransition = ResolveDefaultTransition(activeState.Config),
                         SkillTransitionContext = BuildNextSkillTransitionContext(activeState, defaultNextStateId),
                     });
 
@@ -1013,6 +1018,7 @@ namespace AsiSkillEditor.RunTime
                     bestTrackPriority = candidate.TrackPriority;
                     bestSortOrder = interrupt.SortOrder;
                     bestTriggerTime = interrupt.TriggerTime;
+                    _statesById.TryGetValue(interrupt.TargetStateId, out StateConfig targetState);
                     bestRequest = new StateTransitionRequest
                     {
                         RequestType = StateTransitionRequestType.Interrupt,
@@ -1020,8 +1026,9 @@ namespace AsiSkillEditor.RunTime
                         SourceLayerHint = activeState.Config != null ? activeState.Config.Layer : (StateLayerType?)null,
                         TargetStateId = interrupt.TargetStateId,
                         InterruptConfig = interrupt,
+                        AnimationTransition = ResolveInterruptTransition(interrupt, targetState),
                         IgnoreInterruptRules = false,
-                        RequestedStartTime = ResolveTargetStartTime(interrupt, _statesById.TryGetValue(interrupt.TargetStateId, out StateConfig targetState) ? targetState : null),
+                        RequestedStartTime = 0f,
                         SkillTransitionContext = BuildNextSkillTransitionContext(activeState, interrupt.TargetStateId),
                     };
                 }
@@ -1089,10 +1096,19 @@ namespace AsiSkillEditor.RunTime
             SkillTransitionContext previousSkillTransitionContext = sourceActiveState != null ? sourceActiveState.SkillTransitionContext : null;
             SkillTransitionContext nextSkillTransitionContext = request.SkillTransitionContext ?? BuildNextSkillTransitionContext(sourceActiveState, request.TargetStateId);
 
-            ExitActiveState(sourceActiveState, request);
+            bool targetHasAnimation = HasPlayableAnimation(targetState);
+            ICharacterAnimationController animationController = _context.SkillContext != null
+                ? _context.SkillContext.CharacterAnimationController
+                : null;
+            if (targetHasAnimation && animationController != null && !animationController.CanPlayStateAnimation(targetState))
+            {
+                return false;
+            }
+
+            ExitActiveState(sourceActiveState, request, stopAnimation: !targetHasAnimation);
             ActiveStateRuntime nextActiveState = CreateActiveStateRuntime(targetState, nextSkillTransitionContext, request.RequestedStartTime);
             SyncLayerRuntimeWithActiveState(targetState, nextActiveState);
-            EnterActiveState(targetState, nextActiveState, request);
+            EnterActiveState(targetState, nextActiveState, request, previousStateConfig);
 
             if (_context.SkillContext != null)
             {
@@ -1466,7 +1482,7 @@ namespace AsiSkillEditor.RunTime
         /// <param name="state">进入的状态配置。</param>
         /// <param name="activeState">新建好的目标状态运行时。</param>
         /// <param name="request">触发本次进入的切换请求。</param>
-        private void EnterActiveState(StateConfig state, ActiveStateRuntime activeState, StateTransitionRequest request)
+        private void EnterActiveState(StateConfig state, ActiveStateRuntime activeState, StateTransitionRequest request, StateConfig sourceState = null)
         {
             ApplyTags(state, state != null ? state.Tags : null, StateTagSourceId);
             if (state != null && activeState != null && state.AffectsLocomotion)
@@ -1478,20 +1494,39 @@ namespace AsiSkillEditor.RunTime
                     state.MovementProfile ?? StateMovementProfile.CreateDefault());
             }
 
-            bool hasPlayableAnimation = state != null &&
-                                        (state.AnimationMode == StateAnimationMode.DirectionalMixer2D ||
-                                         !string.IsNullOrWhiteSpace(state.AnimationClipPath));
+            bool hasPlayableAnimation = HasPlayableAnimation(state);
             if (!hasPlayableAnimation || _context.SkillContext == null)
             {
                 return;
             }
 
             ICharacterAnimationController animationController = _context.SkillContext.CharacterAnimationController;
-            animationController?.PlayStateAnimation(_context.SkillContext, state, null);
-            if (activeState != null && activeState.ElapsedTime > 0f)
+            if (sourceState != null)
             {
-                animationController?.SeekStateAnimation(_context.SkillContext, state, activeState.ElapsedTime);
+                animationController?.TransitionStateAnimation(_context.SkillContext, new StateAnimationTransitionContext
+                {
+                    SourceState = sourceState,
+                    TargetState = state,
+                    Transition = request != null ? request.AnimationTransition : null,
+                    TargetStateTime = activeState != null ? activeState.ElapsedTime : 0f,
+                    RequestType = request != null ? request.RequestType : StateTransitionRequestType.ExternalForce,
+                });
             }
+            else
+            {
+                animationController?.PlayStateAnimation(_context.SkillContext, state, null);
+                if (activeState != null && activeState.ElapsedTime > 0f)
+                {
+                    animationController?.SeekStateAnimation(_context.SkillContext, state, activeState.ElapsedTime);
+                }
+            }
+        }
+
+        private static bool HasPlayableAnimation(StateConfig state)
+        {
+            return state != null &&
+                   (state.AnimationMode == StateAnimationMode.DirectionalMixer2D ||
+                    !string.IsNullOrWhiteSpace(state.AnimationClipPath));
         }
 
         /// <summary>
@@ -1499,7 +1534,7 @@ namespace AsiSkillEditor.RunTime
         /// 包括结束时间线、移除状态标签、停止状态动画。
         /// </summary>
         /// <param name="request">触发本次退出的切换请求。</param>
-        private void ExitActiveState(ActiveStateRuntime activeState, StateTransitionRequest request)
+        private void ExitActiveState(ActiveStateRuntime activeState, StateTransitionRequest request, bool stopAnimation = true)
         {
             if (activeState == null || activeState.Config == null)
             {
@@ -1515,7 +1550,7 @@ namespace AsiSkillEditor.RunTime
             activeState.MovementPolicyHandle = default;
 
             RemoveTags(activeState.Config, activeState.Config.Tags, StateTagSourceId);
-            if (_context.SkillContext != null)
+            if (stopAnimation && _context.SkillContext != null)
             {
                 _context.SkillContext.CharacterAnimationController?.StopStateAnimation(
                     _context.SkillContext,
@@ -1697,27 +1732,52 @@ namespace AsiSkillEditor.RunTime
             return currentTime <= triggerTime + interrupt.Duration;
         }
 
-        /// <summary>
-        /// 解析中断切入目标状态时的起始播放时间。
-        /// </summary>
-        /// <param name="interrupt">中断配置。</param>
-        /// <param name="targetState">目标状态配置。</param>
-        /// <returns>目标状态起始时间，单位为秒。</returns>
-        private static float ResolveTargetStartTime(StateInterruptConfig interrupt, StateConfig targetState)
+        private static StateAnimationTransitionConfig ResolveDefaultTransition(StateConfig sourceState)
         {
-            if (interrupt == null)
+            StateAnimationTransitionConfig configured = sourceState != null ? sourceState.DefaultTransition : null;
+            if (configured != null && configured.IsConfigured)
             {
-                return 0f;
+                return configured;
             }
 
-            float startTime = Mathf.Max(0f, interrupt.TargetStartTime);
-            if (interrupt.TargetStartTimeUnit != AnimationStartTimeUnit.NormalizedTime)
+            TimelineAnimationConfig legacy = sourceState != null && sourceState.Timeline != null
+                ? sourceState.Timeline.Animation
+                : null;
+            return new StateAnimationTransitionConfig
             {
-                return startTime;
+                IsConfigured = true,
+                ExitTime = 1f,
+                ExitTimeUnit = StateTransitionExitTimeUnit.NormalizedStateTime,
+                BlendDuration = legacy != null ? Mathf.Max(0f, legacy.TransitionDuration) : 0.1f,
+                BlendDurationUnit = legacy != null ? legacy.TransitionTimeUnit : AnimationTransitionTimeUnit.FixedSeconds,
+                TargetAnimationOffset = 0f,
+                TargetAnimationOffsetUnit = AnimationStartTimeUnit.FixedSeconds,
+            };
+        }
+
+        private static StateAnimationTransitionConfig ResolveInterruptTransition(StateInterruptConfig interrupt, StateConfig targetState)
+        {
+            if (interrupt != null && interrupt.Transition != null && interrupt.Transition.IsConfigured)
+            {
+                return interrupt.Transition;
             }
 
-            AnimationClip clip = SkillAnimationRuntimeCatalog.LoadClip(targetState != null ? targetState.AnimationClipPath : string.Empty);
-            return clip != null ? startTime * Mathf.Max(0f, clip.length) : startTime;
+            TimelineAnimationConfig legacyTarget = targetState != null && targetState.Timeline != null
+                ? targetState.Timeline.Animation
+                : null;
+            bool useLegacyOverride = interrupt != null && interrupt.UseTransitionOverride;
+            return new StateAnimationTransitionConfig
+            {
+                IsConfigured = true,
+                BlendDuration = useLegacyOverride
+                    ? Mathf.Max(0f, interrupt.TransitionDuration)
+                    : legacyTarget != null ? Mathf.Max(0f, legacyTarget.TransitionDuration) : 0.1f,
+                BlendDurationUnit = useLegacyOverride
+                    ? interrupt.TransitionTimeUnit
+                    : legacyTarget != null ? legacyTarget.TransitionTimeUnit : AnimationTransitionTimeUnit.FixedSeconds,
+                TargetAnimationOffset = 0f,
+                TargetAnimationOffsetUnit = AnimationStartTimeUnit.FixedSeconds,
+            };
         }
 
         /// <summary>
@@ -1736,8 +1796,26 @@ namespace AsiSkillEditor.RunTime
                 return false;
             }
 
-            float endTime = ResolveStateNaturalEndTime(stateConfig);
-            return endTime > 0f && elapsedTime >= endTime;
+            float transitionTime = ResolveDefaultTransitionTime(stateConfig);
+            return transitionTime >= 0f && elapsedTime >= transitionTime;
+        }
+
+        private static float ResolveDefaultTransitionTime(StateConfig stateConfig)
+        {
+            float stateDuration = ResolveStateNaturalEndTime(stateConfig);
+            if (stateDuration <= 0f)
+            {
+                return -1f;
+            }
+
+            StateAnimationTransitionConfig transition = ResolveDefaultTransition(stateConfig);
+            float exitTime = Mathf.Max(0f, transition != null ? transition.ExitTime : 1f);
+            if (transition != null && transition.ExitTimeUnit == StateTransitionExitTimeUnit.FixedSeconds)
+            {
+                return exitTime;
+            }
+
+            return stateDuration * exitTime;
         }
 
         /// <summary>

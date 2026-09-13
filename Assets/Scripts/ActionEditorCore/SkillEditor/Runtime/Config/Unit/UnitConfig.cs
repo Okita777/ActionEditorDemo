@@ -250,6 +250,7 @@ namespace AsiSkillEditor.RunTime
         public bool AffectsLocomotion = true;
         public StateMovementProfile MovementProfile = StateMovementProfile.CreateDefault();
         public string DefaultNextStateId = string.Empty;
+        [OptionalField] public StateAnimationTransitionConfig DefaultTransition = StateAnimationTransitionConfig.CreateDefault();
         public StateTimelineConfig Timeline = new StateTimelineConfig();
         public TagContainer Tags = new TagContainer();
 

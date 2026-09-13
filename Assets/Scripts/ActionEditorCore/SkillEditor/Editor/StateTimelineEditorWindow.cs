@@ -2362,41 +2362,46 @@ namespace SkillEditor.Editor
                 MarkDirty();
             }
 
-            bool useTransitionOverride = EditorGUILayout.Toggle("UseTransitionOverride", config.UseTransitionOverride);
-            if (useTransitionOverride != config.UseTransitionOverride)
+            config.Transition ??= StateAnimationTransitionConfig.CreateDefault();
+            if (!config.Transition.IsConfigured)
             {
-                config.UseTransitionOverride = useTransitionOverride;
+                config.Transition.IsConfigured = true;
+                config.Transition.BlendDuration = config.UseTransitionOverride
+                    ? Mathf.Max(0f, config.TransitionDuration)
+                    : 0.1f;
+                config.Transition.BlendDurationUnit = config.UseTransitionOverride
+                    ? config.TransitionTimeUnit
+                    : AnimationTransitionTimeUnit.FixedSeconds;
                 MarkDirty();
             }
 
-            using (new EditorGUI.DisabledScope(!config.UseTransitionOverride))
+            EditorGUILayout.Space(6f);
+            EditorGUILayout.LabelField($"Animation Transition: 当前状态 -> {config.TargetStateId}", EditorStyles.boldLabel);
+            float blendDuration = Mathf.Max(0f, EditorGUILayout.FloatField("Blend Duration", config.Transition.BlendDuration));
+            if (!Mathf.Approximately(blendDuration, config.Transition.BlendDuration))
             {
-                float transitionDuration = Mathf.Max(0f, EditorGUILayout.FloatField("TransitionDuration", config.TransitionDuration));
-                if (!Mathf.Approximately(transitionDuration, config.TransitionDuration))
-                {
-                    config.TransitionDuration = transitionDuration;
-                    MarkDirty();
-                }
-
-                AnimationTransitionTimeUnit transitionTimeUnit = (AnimationTransitionTimeUnit)EditorGUILayout.EnumPopup("TransitionTimeUnit", config.TransitionTimeUnit);
-                if (transitionTimeUnit != config.TransitionTimeUnit)
-                {
-                    config.TransitionTimeUnit = transitionTimeUnit;
-                    MarkDirty();
-                }
-            }
-
-            float targetStartTime = Mathf.Max(0f, EditorGUILayout.FloatField("TargetStartTime", config.TargetStartTime));
-            if (!Mathf.Approximately(targetStartTime, config.TargetStartTime))
-            {
-                config.TargetStartTime = targetStartTime;
+                config.Transition.BlendDuration = blendDuration;
                 MarkDirty();
             }
 
-            AnimationStartTimeUnit targetStartTimeUnit = (AnimationStartTimeUnit)EditorGUILayout.EnumPopup("TargetStartTimeUnit", config.TargetStartTimeUnit);
-            if (targetStartTimeUnit != config.TargetStartTimeUnit)
+            AnimationTransitionTimeUnit blendUnit = (AnimationTransitionTimeUnit)EditorGUILayout.EnumPopup("Blend Duration Unit", config.Transition.BlendDurationUnit);
+            if (blendUnit != config.Transition.BlendDurationUnit)
             {
-                config.TargetStartTimeUnit = targetStartTimeUnit;
+                config.Transition.BlendDurationUnit = blendUnit;
+                MarkDirty();
+            }
+
+            float targetAnimationOffset = Mathf.Max(0f, EditorGUILayout.FloatField("Target Animation Offset", config.Transition.TargetAnimationOffset));
+            if (!Mathf.Approximately(targetAnimationOffset, config.Transition.TargetAnimationOffset))
+            {
+                config.Transition.TargetAnimationOffset = targetAnimationOffset;
+                MarkDirty();
+            }
+
+            AnimationStartTimeUnit targetAnimationOffsetUnit = (AnimationStartTimeUnit)EditorGUILayout.EnumPopup("Target Animation Offset Unit", config.Transition.TargetAnimationOffsetUnit);
+            if (targetAnimationOffsetUnit != config.Transition.TargetAnimationOffsetUnit)
+            {
+                config.Transition.TargetAnimationOffsetUnit = targetAnimationOffsetUnit;
                 MarkDirty();
             }
 
@@ -3917,7 +3922,6 @@ namespace SkillEditor.Editor
                 config.TriggerTime = Mathf.Max(0f, config.TriggerTime);
                 config.ExecuteTime = Mathf.Max(0f, config.ExecuteTime);
                 config.TransitionDuration = Mathf.Max(0f, config.TransitionDuration);
-                config.TargetStartTime = Mathf.Max(0f, config.TargetStartTime);
                 config.Conditions ??= new List<IStateInterruptCondition>();
 
                 float visualEnd = config.Duration < 0f ? config.TriggerTime : config.TriggerTime + Mathf.Max(0f, config.Duration);
@@ -4412,6 +4416,12 @@ namespace SkillEditor.Editor
                 Duration = 0.15f,
                 ExecuteTime = 0f,
                 IsEnabled = true,
+                Transition = new StateAnimationTransitionConfig
+                {
+                    IsConfigured = true,
+                    BlendDuration = 0.1f,
+                    BlendDurationUnit = AnimationTransitionTimeUnit.FixedSeconds,
+                },
             };
 
             track.Interrupts.Add(interrupt);

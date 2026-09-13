@@ -81,6 +81,15 @@
         "AirControl": 1.0
     },
     "DefaultNextStateId": "",
+    "DefaultTransition": {
+        "IsConfigured": true,
+        "ExitTime": 1.0,
+        "ExitTimeUnit": 1,
+        "BlendDuration": 0.10000000149011612,
+        "BlendDurationUnit": 0,
+        "TargetAnimationOffset": 0.0,
+        "TargetAnimationOffsetUnit": 0
+    },
     "Timeline": {
         "Duration": 0.5000000596046448,
         "Animation": {
@@ -105,6 +114,15 @@
                         "ExecuteTime": 0.0,
                         "SortOrder": 0,
                         "CheckAllConditions": true,
+                        "Transition": {
+                            "IsConfigured": true,
+                            "ExitTime": 1.0,
+                            "ExitTimeUnit": 1,
+                            "BlendDuration": 0.0,
+                            "BlendDurationUnit": 0,
+                            "TargetAnimationOffset": 0.0,
+                            "TargetAnimationOffsetUnit": 0
+                        },
                         "UseTransitionOverride": false,
                         "TransitionDuration": 0.0,
                         "TransitionTimeUnit": 0,
@@ -132,6 +150,15 @@
                         "ExecuteTime": 0.0,
                         "SortOrder": 0,
                         "CheckAllConditions": true,
+                        "Transition": {
+                            "IsConfigured": true,
+                            "ExitTime": 1.0,
+                            "ExitTimeUnit": 1,
+                            "BlendDuration": 0.10000000149011612,
+                            "BlendDurationUnit": 0,
+                            "TargetAnimationOffset": 0.0,
+                            "TargetAnimationOffsetUnit": 0
+                        },
                         "UseTransitionOverride": false,
                         "TransitionDuration": 0.0,
                         "TransitionTimeUnit": 0,
@@ -185,7 +212,7 @@
                 },
                 "data": {
                     "MoveInputMode": 3,
-                    "MinimumDuration": 0.20000000298023225
+                    "MinimumDuration": 0.10000000149011612
                 }
             }
         ]

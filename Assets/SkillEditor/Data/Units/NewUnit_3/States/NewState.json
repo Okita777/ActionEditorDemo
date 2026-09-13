@@ -75,7 +75,7 @@
         "RootMotionSideWeight": 1.0,
         "RootMotionVerticalWeight": 0.0,
         "RootMotionRotationWeight": 1.0,
-        "AllowBackwardRootMotion": true,
+        "AllowBackwardRootMotion": false,
         "MaxTurnSpeed": 0.0,
         "AllowGravity": true,
         "AirControl": 1.0

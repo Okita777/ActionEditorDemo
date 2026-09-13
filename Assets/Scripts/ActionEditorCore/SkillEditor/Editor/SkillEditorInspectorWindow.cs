@@ -739,11 +739,10 @@ namespace SkillEditor.Editor
                 SyncEmbeddedStateIdentity(recoveryPhase);
                 DrawStateLayerSettings(stateConfig);
                 DrawEmbeddedStateAnimationField(stateConfig, "anim");
+                DrawEmbeddedDefaultNextStateField(stateConfig);
                 DrawEmbeddedStateAnimationTransitionSettings(
                     stateConfig,
-                    recoveryPhase ? "recovery transition" : "skill transition");
-
-                DrawEmbeddedDefaultNextStateField(stateConfig);
+                    recoveryPhase ? "recovery default transition" : "skill default transition");
 
                 if (TagSelectionEditorUtility.DrawTagContainer("tag", stateConfig.Tags))
                 {
@@ -836,41 +835,90 @@ namespace SkillEditor.Editor
             {
                 TimelineAnimationConfig animationConfig = EnsureEmbeddedStateAnimationConfig(stateConfig);
                 EditorGUILayout.Space(8f);
-                EditorGUILayout.LabelField(header, EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("animation playback", EditorStyles.boldLabel);
 
-                float transitionDuration = Mathf.Max(0f, EditorGUILayout.FloatField("transition duration", animationConfig.TransitionDuration));
-                if (!Mathf.Approximately(transitionDuration, animationConfig.TransitionDuration))
-                {
-                    animationConfig.TransitionDuration = transitionDuration;
-                    SkillResourceRepository.MarkDirty(_entry);
-                }
-
-                AnimationTransitionTimeUnit transitionTimeUnit = (AnimationTransitionTimeUnit)EditorGUILayout.EnumPopup("transition time unit", animationConfig.TransitionTimeUnit);
-                if (transitionTimeUnit != animationConfig.TransitionTimeUnit)
-                {
-                    animationConfig.TransitionTimeUnit = transitionTimeUnit;
-                    SkillResourceRepository.MarkDirty(_entry);
-                }
-
-                AnimancerFadeMode fadeMode = (AnimancerFadeMode)EditorGUILayout.EnumPopup("fade mode", animationConfig.FadeMode);
-                if (fadeMode != animationConfig.FadeMode)
-                {
-                    animationConfig.FadeMode = fadeMode;
-                    SkillResourceRepository.MarkDirty(_entry);
-                }
-
-                float startTime = Mathf.Max(0f, EditorGUILayout.FloatField("start time", animationConfig.StartTime));
+                float startTime = Mathf.Max(0f, EditorGUILayout.FloatField("clip start offset", animationConfig.StartTime));
                 if (!Mathf.Approximately(startTime, animationConfig.StartTime))
                 {
                     animationConfig.StartTime = startTime;
                     SkillResourceRepository.MarkDirty(_entry);
                 }
 
-                AnimationStartTimeUnit startTimeUnit = (AnimationStartTimeUnit)EditorGUILayout.EnumPopup("start time unit", animationConfig.StartTimeUnit);
+                AnimationStartTimeUnit startTimeUnit = (AnimationStartTimeUnit)EditorGUILayout.EnumPopup("clip start offset unit", animationConfig.StartTimeUnit);
                 if (startTimeUnit != animationConfig.StartTimeUnit)
                 {
                     animationConfig.StartTimeUnit = startTimeUnit;
                     SkillResourceRepository.MarkDirty(_entry);
+                }
+
+                StateAnimationTransitionConfig transition = EnsureDefaultTransitionConfig(stateConfig, animationConfig);
+                EditorGUILayout.Space(8f);
+                EditorGUILayout.LabelField(
+                    $"{header}: {stateConfig.StateName} -> {(string.IsNullOrWhiteSpace(stateConfig.DefaultNextStateId) ? "未设置" : stateConfig.DefaultNextStateId)}",
+                    EditorStyles.boldLabel);
+                DrawTransitionFields(transition, showExitTime: true, () => SkillResourceRepository.MarkDirty(_entry));
+            }
+
+            private static StateAnimationTransitionConfig EnsureDefaultTransitionConfig(StateConfig stateConfig, TimelineAnimationConfig legacy)
+            {
+                stateConfig.DefaultTransition ??= StateAnimationTransitionConfig.CreateDefault();
+                if (!stateConfig.DefaultTransition.IsConfigured)
+                {
+                    stateConfig.DefaultTransition.IsConfigured = true;
+                    stateConfig.DefaultTransition.BlendDuration = legacy != null ? Mathf.Max(0f, legacy.TransitionDuration) : 0.1f;
+                    stateConfig.DefaultTransition.BlendDurationUnit = legacy != null
+                        ? legacy.TransitionTimeUnit
+                        : AnimationTransitionTimeUnit.FixedSeconds;
+                }
+
+                return stateConfig.DefaultTransition;
+            }
+
+            private static void DrawTransitionFields(StateAnimationTransitionConfig transition, bool showExitTime, Action onChanged)
+            {
+                if (showExitTime)
+                {
+                    float exitTime = Mathf.Max(0f, EditorGUILayout.FloatField("exit time", transition.ExitTime));
+                    if (!Mathf.Approximately(exitTime, transition.ExitTime))
+                    {
+                        transition.ExitTime = exitTime;
+                        onChanged?.Invoke();
+                    }
+
+                    StateTransitionExitTimeUnit exitUnit = (StateTransitionExitTimeUnit)EditorGUILayout.EnumPopup("exit time unit", transition.ExitTimeUnit);
+                    if (exitUnit != transition.ExitTimeUnit)
+                    {
+                        transition.ExitTimeUnit = exitUnit;
+                        onChanged?.Invoke();
+                    }
+                }
+
+                float blendDuration = Mathf.Max(0f, EditorGUILayout.FloatField("blend duration", transition.BlendDuration));
+                if (!Mathf.Approximately(blendDuration, transition.BlendDuration))
+                {
+                    transition.BlendDuration = blendDuration;
+                    onChanged?.Invoke();
+                }
+
+                AnimationTransitionTimeUnit blendUnit = (AnimationTransitionTimeUnit)EditorGUILayout.EnumPopup("blend duration unit", transition.BlendDurationUnit);
+                if (blendUnit != transition.BlendDurationUnit)
+                {
+                    transition.BlendDurationUnit = blendUnit;
+                    onChanged?.Invoke();
+                }
+
+                float targetOffset = Mathf.Max(0f, EditorGUILayout.FloatField("target animation offset", transition.TargetAnimationOffset));
+                if (!Mathf.Approximately(targetOffset, transition.TargetAnimationOffset))
+                {
+                    transition.TargetAnimationOffset = targetOffset;
+                    onChanged?.Invoke();
+                }
+
+                AnimationStartTimeUnit targetOffsetUnit = (AnimationStartTimeUnit)EditorGUILayout.EnumPopup("target offset unit", transition.TargetAnimationOffsetUnit);
+                if (targetOffsetUnit != transition.TargetAnimationOffsetUnit)
+                {
+                    transition.TargetAnimationOffsetUnit = targetOffsetUnit;
+                    onChanged?.Invoke();
                 }
             }
 
@@ -1117,7 +1165,7 @@ namespace SkillEditor.Editor
                     SkillResourceRepository.MarkDirty(_entry);
                 }
                 DrawAnimationField("state anim");
-                DrawAnimationTransitionSettings("state anim transition");
+                DrawAnimationTransitionSettings("default transition");
                 EditorGUILayout.EndVertical();
 
                 EditorGUILayout.Space(10f);
@@ -1322,41 +1370,90 @@ namespace SkillEditor.Editor
                 TimelineAnimationConfig animationConfig = EnsureTimelineAnimationConfig();
 
                 EditorGUILayout.Space(8f);
-                EditorGUILayout.LabelField(header, EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("animation playback", EditorStyles.boldLabel);
 
-                float transitionDuration = Mathf.Max(0f, EditorGUILayout.FloatField("transition duration", animationConfig.TransitionDuration));
-                if (!Mathf.Approximately(transitionDuration, animationConfig.TransitionDuration))
-                {
-                    animationConfig.TransitionDuration = transitionDuration;
-                    SkillResourceRepository.MarkDirty(_entry);
-                }
-
-                AnimationTransitionTimeUnit transitionTimeUnit = (AnimationTransitionTimeUnit)EditorGUILayout.EnumPopup("transition time unit", animationConfig.TransitionTimeUnit);
-                if (transitionTimeUnit != animationConfig.TransitionTimeUnit)
-                {
-                    animationConfig.TransitionTimeUnit = transitionTimeUnit;
-                    SkillResourceRepository.MarkDirty(_entry);
-                }
-
-                AnimancerFadeMode fadeMode = (AnimancerFadeMode)EditorGUILayout.EnumPopup("fade mode", animationConfig.FadeMode);
-                if (fadeMode != animationConfig.FadeMode)
-                {
-                    animationConfig.FadeMode = fadeMode;
-                    SkillResourceRepository.MarkDirty(_entry);
-                }
-
-                float startTime = Mathf.Max(0f, EditorGUILayout.FloatField("start time", animationConfig.StartTime));
+                float startTime = Mathf.Max(0f, EditorGUILayout.FloatField("clip start offset", animationConfig.StartTime));
                 if (!Mathf.Approximately(startTime, animationConfig.StartTime))
                 {
                     animationConfig.StartTime = startTime;
                     SkillResourceRepository.MarkDirty(_entry);
                 }
 
-                AnimationStartTimeUnit startTimeUnit = (AnimationStartTimeUnit)EditorGUILayout.EnumPopup("start time unit", animationConfig.StartTimeUnit);
+                AnimationStartTimeUnit startTimeUnit = (AnimationStartTimeUnit)EditorGUILayout.EnumPopup("clip start offset unit", animationConfig.StartTimeUnit);
                 if (startTimeUnit != animationConfig.StartTimeUnit)
                 {
                     animationConfig.StartTimeUnit = startTimeUnit;
                     SkillResourceRepository.MarkDirty(_entry);
+                }
+
+                StateAnimationTransitionConfig transition = EnsureDefaultTransitionConfig(_config, animationConfig);
+                EditorGUILayout.Space(8f);
+                EditorGUILayout.LabelField(
+                    $"{header}: {_config.StateName} -> {(string.IsNullOrWhiteSpace(_config.DefaultNextStateId) ? "未设置" : _config.DefaultNextStateId)}",
+                    EditorStyles.boldLabel);
+                DrawTransitionFields(transition, showExitTime: true, () => SkillResourceRepository.MarkDirty(_entry));
+            }
+
+            private static StateAnimationTransitionConfig EnsureDefaultTransitionConfig(StateConfig stateConfig, TimelineAnimationConfig legacy)
+            {
+                stateConfig.DefaultTransition ??= StateAnimationTransitionConfig.CreateDefault();
+                if (!stateConfig.DefaultTransition.IsConfigured)
+                {
+                    stateConfig.DefaultTransition.IsConfigured = true;
+                    stateConfig.DefaultTransition.BlendDuration = legacy != null ? Mathf.Max(0f, legacy.TransitionDuration) : 0.1f;
+                    stateConfig.DefaultTransition.BlendDurationUnit = legacy != null
+                        ? legacy.TransitionTimeUnit
+                        : AnimationTransitionTimeUnit.FixedSeconds;
+                }
+
+                return stateConfig.DefaultTransition;
+            }
+
+            private static void DrawTransitionFields(StateAnimationTransitionConfig transition, bool showExitTime, Action onChanged)
+            {
+                if (showExitTime)
+                {
+                    float exitTime = Mathf.Max(0f, EditorGUILayout.FloatField("exit time", transition.ExitTime));
+                    if (!Mathf.Approximately(exitTime, transition.ExitTime))
+                    {
+                        transition.ExitTime = exitTime;
+                        onChanged?.Invoke();
+                    }
+
+                    StateTransitionExitTimeUnit exitUnit = (StateTransitionExitTimeUnit)EditorGUILayout.EnumPopup("exit time unit", transition.ExitTimeUnit);
+                    if (exitUnit != transition.ExitTimeUnit)
+                    {
+                        transition.ExitTimeUnit = exitUnit;
+                        onChanged?.Invoke();
+                    }
+                }
+
+                float blendDuration = Mathf.Max(0f, EditorGUILayout.FloatField("blend duration", transition.BlendDuration));
+                if (!Mathf.Approximately(blendDuration, transition.BlendDuration))
+                {
+                    transition.BlendDuration = blendDuration;
+                    onChanged?.Invoke();
+                }
+
+                AnimationTransitionTimeUnit blendUnit = (AnimationTransitionTimeUnit)EditorGUILayout.EnumPopup("blend duration unit", transition.BlendDurationUnit);
+                if (blendUnit != transition.BlendDurationUnit)
+                {
+                    transition.BlendDurationUnit = blendUnit;
+                    onChanged?.Invoke();
+                }
+
+                float targetOffset = Mathf.Max(0f, EditorGUILayout.FloatField("target animation offset", transition.TargetAnimationOffset));
+                if (!Mathf.Approximately(targetOffset, transition.TargetAnimationOffset))
+                {
+                    transition.TargetAnimationOffset = targetOffset;
+                    onChanged?.Invoke();
+                }
+
+                AnimationStartTimeUnit targetOffsetUnit = (AnimationStartTimeUnit)EditorGUILayout.EnumPopup("target offset unit", transition.TargetAnimationOffsetUnit);
+                if (targetOffsetUnit != transition.TargetAnimationOffsetUnit)
+                {
+                    transition.TargetAnimationOffsetUnit = targetOffsetUnit;
+                    onChanged?.Invoke();
                 }
             }
 
@@ -3998,41 +4095,46 @@ namespace SkillEditor.Editor
                     NotifyModified();
                 }
 
-                bool useTransitionOverride = EditorGUILayout.Toggle("UseTransitionOverride", _interrupt.UseTransitionOverride);
-                if (useTransitionOverride != _interrupt.UseTransitionOverride)
+                _interrupt.Transition ??= StateAnimationTransitionConfig.CreateDefault();
+                if (!_interrupt.Transition.IsConfigured)
                 {
-                    _interrupt.UseTransitionOverride = useTransitionOverride;
+                    _interrupt.Transition.IsConfigured = true;
+                    _interrupt.Transition.BlendDuration = _interrupt.UseTransitionOverride
+                        ? Mathf.Max(0f, _interrupt.TransitionDuration)
+                        : 0.1f;
+                    _interrupt.Transition.BlendDurationUnit = _interrupt.UseTransitionOverride
+                        ? _interrupt.TransitionTimeUnit
+                        : AnimationTransitionTimeUnit.FixedSeconds;
                     NotifyModified();
                 }
 
-                using (new EditorGUI.DisabledScope(!_interrupt.UseTransitionOverride))
+                EditorGUILayout.Space(6f);
+                EditorGUILayout.LabelField($"animation transition: 当前状态 -> {_interrupt.TargetStateId}", EditorStyles.boldLabel);
+                float blendDuration = Mathf.Max(0f, EditorGUILayout.FloatField("blend duration", _interrupt.Transition.BlendDuration));
+                if (!Mathf.Approximately(blendDuration, _interrupt.Transition.BlendDuration))
                 {
-                    float transitionDuration = Mathf.Max(0f, EditorGUILayout.FloatField("TransitionDuration", _interrupt.TransitionDuration));
-                    if (!Mathf.Approximately(transitionDuration, _interrupt.TransitionDuration))
-                    {
-                        _interrupt.TransitionDuration = transitionDuration;
-                        NotifyModified();
-                    }
-
-                    AnimationTransitionTimeUnit transitionTimeUnit = (AnimationTransitionTimeUnit)EditorGUILayout.EnumPopup("TransitionTimeUnit", _interrupt.TransitionTimeUnit);
-                    if (transitionTimeUnit != _interrupt.TransitionTimeUnit)
-                    {
-                        _interrupt.TransitionTimeUnit = transitionTimeUnit;
-                        NotifyModified();
-                    }
-                }
-
-                float targetStartTime = Mathf.Max(0f, EditorGUILayout.FloatField("TargetStartTime", _interrupt.TargetStartTime));
-                if (!Mathf.Approximately(targetStartTime, _interrupt.TargetStartTime))
-                {
-                    _interrupt.TargetStartTime = targetStartTime;
+                    _interrupt.Transition.BlendDuration = blendDuration;
                     NotifyModified();
                 }
 
-                AnimationStartTimeUnit targetStartTimeUnit = (AnimationStartTimeUnit)EditorGUILayout.EnumPopup("TargetStartTimeUnit", _interrupt.TargetStartTimeUnit);
-                if (targetStartTimeUnit != _interrupt.TargetStartTimeUnit)
+                AnimationTransitionTimeUnit blendUnit = (AnimationTransitionTimeUnit)EditorGUILayout.EnumPopup("blend duration unit", _interrupt.Transition.BlendDurationUnit);
+                if (blendUnit != _interrupt.Transition.BlendDurationUnit)
                 {
-                    _interrupt.TargetStartTimeUnit = targetStartTimeUnit;
+                    _interrupt.Transition.BlendDurationUnit = blendUnit;
+                    NotifyModified();
+                }
+
+                float targetAnimationOffset = Mathf.Max(0f, EditorGUILayout.FloatField("target animation offset", _interrupt.Transition.TargetAnimationOffset));
+                if (!Mathf.Approximately(targetAnimationOffset, _interrupt.Transition.TargetAnimationOffset))
+                {
+                    _interrupt.Transition.TargetAnimationOffset = targetAnimationOffset;
+                    NotifyModified();
+                }
+
+                AnimationStartTimeUnit targetAnimationOffsetUnit = (AnimationStartTimeUnit)EditorGUILayout.EnumPopup("target animation offset unit", _interrupt.Transition.TargetAnimationOffsetUnit);
+                if (targetAnimationOffsetUnit != _interrupt.Transition.TargetAnimationOffsetUnit)
+                {
+                    _interrupt.Transition.TargetAnimationOffsetUnit = targetAnimationOffsetUnit;
                     NotifyModified();
                 }
 

@@ -1,0 +1,535 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8831289923400604296
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1849292319444399668}
+  - component: {fileID: 576883207904319594}
+  m_Layer: 0
+  m_Name: ActionEngineManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1849292319444399668
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8831289923400604296}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 4.5376, y: -3.14647, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &576883207904319594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8831289923400604296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bafe04282de478f847fd4d23cfe19de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ActionEditor_Ex_RunTime::AsiTimeLine.RunTime.ActionEngineManager
+  mPool_Other: {fileID: 0}
+  mPool_Unit: {fileID: 0}
+  mPool_Prop: {fileID: 0}
+  mPool_Effects: {fileID: 0}
+  mPool_Skills: {fileID: 0}
+  mPool_HitBox: {fileID: 0}
+  OnUpdateEnble: 1
+  OnInitHideMouse: 1
+  mDynamicAttributesUpdatas:
+  - gvalue1: 0500000074270000
+    gvalue2: 0600000074270000
+    skilltag: 50010100
+    comp: 109
+  - gvalue1: 05000000d8270000
+    gvalue2: 06000000d8270000
+    skilltag: 50010200
+    comp: 109
+  - gvalue1: 050000003c280000
+    gvalue2: 060000003c280000
+    skilltag: 50010300
+    comp: 109
+  - gvalue1: 05000000a0280000
+    gvalue2: 06000000a0280000
+    skilltag: 50010400
+    comp: 109
+  - gvalue1: 05000000204e0000
+    gvalue2: 06000000204e0000
+    skilltag: 50020000
+    comp: 109
+  - gvalue1: 05000000214e0000
+    gvalue2: 06000000214e0000
+    skilltag: 50020001
+    comp: 109
+  - gvalue1: 05000000224e0000
+    gvalue2: 06000000224e0000
+    skilltag: 50020002
+    comp: 109
+  - gvalue1: 05000000234e0000
+    gvalue2: 06000000234e0000
+    skilltag: 50020003
+    comp: 109
+  - gvalue1: 05000000244e0000
+    gvalue2: 06000000244e0000
+    skilltag: 50020004
+    comp: 109
+  - gvalue1: 05000000254e0000
+    gvalue2: 06000000254e0000
+    skilltag: 50020005
+    comp: 109
+  - gvalue1: 05000000264e0000
+    gvalue2: 06000000264e0000
+    skilltag: 50020006
+    comp: 109
+  - gvalue1: 05000000274e0000
+    gvalue2: 06000000274e0000
+    skilltag: 50020007
+    comp: 109
+  - gvalue1: 05000000284e0000
+    gvalue2: 06000000284e0000
+    skilltag: 50020008
+    comp: 109
+  - gvalue1: 05000000844e0000
+    gvalue2: 06000000844e0000
+    skilltag: 50020100
+    comp: 109
+  - gvalue1: 05000000854e0000
+    gvalue2: 06000000854e0000
+    skilltag: 50020101
+    comp: 109
+  - gvalue1: 05000000864e0000
+    gvalue2: 06000000864e0000
+    skilltag: 50020102
+    comp: 109
+  - gvalue1: 05000000e84e0000
+    gvalue2: 06000000e84e0000
+    skilltag: 50020200
+    comp: 109
+  - gvalue1: 05000000e94e0000
+    gvalue2: 06000000e94e0000
+    skilltag: 50020201
+    comp: 109
+  - gvalue1: 05000000ea4e0000
+    gvalue2: 06000000ea4e0000
+    skilltag: 50020202
+    comp: 109
+  - gvalue1: 050000004c4f0000
+    gvalue2: 060000004c4f0000
+    skilltag: 50020300
+    comp: 109
+  - gvalue1: 050000004d4f0000
+    gvalue2: 060000004d4f0000
+    skilltag: 50020301
+    comp: 109
+  - gvalue1: 050000004e4f0000
+    gvalue2: 060000004e4f0000
+    skilltag: 50020302
+    comp: 109
+  - gvalue1: 05000000b14f0000
+    gvalue2: 06000000b14f0000
+    skilltag: 50020401
+    comp: 109
+  - gvalue1: 05000000b24f0000
+    gvalue2: 06000000b24f0000
+    skilltag: 50020402
+    comp: 109
+  - gvalue1: 05000000b34f0000
+    gvalue2: 06000000b34f0000
+    skilltag: 50020403
+    comp: 109
+  - gvalue1: 05000000b44f0000
+    gvalue2: 06000000b44f0000
+    skilltag: 50020404
+    comp: 109
+  - gvalue1: 05000000bb4f0000
+    gvalue2: 06000000bb4f0000
+    skilltag: 50020411
+    comp: 109
+  - gvalue1: 05000000bc4f0000
+    gvalue2: 06000000bc4f0000
+    skilltag: 50020412
+    comp: 109
+  - gvalue1: 05000000bd4f0000
+    gvalue2: 06000000bd4f0000
+    skilltag: 50020413
+    comp: 109
+  - gvalue1: 05000000be4f0000
+    gvalue2: 06000000be4f0000
+    skilltag: 50020414
+    comp: 109
+  - gvalue1: 0500000015500000
+    gvalue2: 0600000015500000
+    skilltag: 50020501
+    comp: 109
+  - gvalue1: 0500000016500000
+    gvalue2: 0600000016500000
+    skilltag: 50020502
+    comp: 109
+  - gvalue1: 0500000017500000
+    gvalue2: 0600000017500000
+    skilltag: 50020503
+    comp: 109
+  - gvalue1: 0500000018500000
+    gvalue2: 0600000018500000
+    skilltag: 50020504
+    comp: 109
+  - gvalue1: 050000001f500000
+    gvalue2: 060000001f500000
+    skilltag: 50020511
+    comp: 109
+  - gvalue1: 0500000020500000
+    gvalue2: 0600000020500000
+    skilltag: 50020512
+    comp: 109
+  - gvalue1: 0500000021500000
+    gvalue2: 0600000021500000
+    skilltag: 50020513
+    comp: 109
+  - gvalue1: 0500000022500000
+    gvalue2: 0600000022500000
+    skilltag: 50020514
+    comp: 109
+  - gvalue1: 0500000079500000
+    gvalue2: 0600000079500000
+    skilltag: 50020601
+    comp: 109
+  - gvalue1: 050000007a500000
+    gvalue2: 060000007a500000
+    skilltag: 50020602
+    comp: 109
+  - gvalue1: 050000007b500000
+    gvalue2: 060000007b500000
+    skilltag: 50020603
+    comp: 109
+  - gvalue1: 050000007c500000
+    gvalue2: 060000007c500000
+    skilltag: 50020604
+    comp: 109
+  - gvalue1: 0500000083500000
+    gvalue2: 0600000083500000
+    skilltag: 50020611
+    comp: 109
+  - gvalue1: 0500000084500000
+    gvalue2: 0600000084500000
+    skilltag: 50020612
+    comp: 109
+  - gvalue1: 0500000085500000
+    gvalue2: 0600000085500000
+    skilltag: 50020613
+    comp: 109
+  - gvalue1: 0500000086500000
+    gvalue2: 0600000086500000
+    skilltag: 50020614
+    comp: 109
+  - gvalue1: 05000000dd500000
+    gvalue2: 06000000dd500000
+    skilltag: 50020701
+    comp: 109
+  - gvalue1: 05000000de500000
+    gvalue2: 06000000de500000
+    skilltag: 50020702
+    comp: 109
+  - gvalue1: 05000000df500000
+    gvalue2: 06000000df500000
+    skilltag: 50020703
+    comp: 109
+  - gvalue1: 05000000e0500000
+    gvalue2: 06000000e0500000
+    skilltag: 50020704
+    comp: 109
+  - gvalue1: 05000000e7500000
+    gvalue2: 06000000e7500000
+    skilltag: 50020711
+    comp: 109
+  - gvalue1: 05000000e8500000
+    gvalue2: 06000000e8500000
+    skilltag: 50020712
+    comp: 109
+  - gvalue1: 05000000e9500000
+    gvalue2: 06000000e9500000
+    skilltag: 50020713
+    comp: 109
+  - gvalue1: 05000000ea500000
+    gvalue2: 06000000ea500000
+    skilltag: 50020714
+    comp: 109
+  - gvalue1: 050000004c510000
+    gvalue2: 060000004c510000
+    skilltag: 50020812
+    comp: 109
+  - gvalue1: 050000004d510000
+    gvalue2: 060000004d510000
+    skilltag: 50020813
+    comp: 109
+  - gvalue1: 050000004e510000
+    gvalue2: 060000004e510000
+    skilltag: 50020814
+    comp: 109
+  - gvalue1: 0500000055510000
+    gvalue2: 0600000055510000
+    skilltag: 50020821
+    comp: 109
+  - gvalue1: 0500000057510000
+    gvalue2: 0600000057510000
+    skilltag: 50020823
+    comp: 109
+  - gvalue1: 0500000058510000
+    gvalue2: 0600000058510000
+    skilltag: 50020824
+    comp: 109
+  - gvalue1: 050000005f510000
+    gvalue2: 060000005f510000
+    skilltag: 50020831
+    comp: 109
+  - gvalue1: 0500000060510000
+    gvalue2: 0600000060510000
+    skilltag: 50020832
+    comp: 109
+  - gvalue1: 0500000062510000
+    gvalue2: 0600000062510000
+    skilltag: 50020834
+    comp: 109
+  - gvalue1: 0500000069510000
+    gvalue2: 0600000069510000
+    skilltag: 50020841
+    comp: 109
+  - gvalue1: 050000006a510000
+    gvalue2: 060000006a510000
+    skilltag: 50020842
+    comp: 109
+  - gvalue1: 050000006b510000
+    gvalue2: 060000006b510000
+    skilltag: 50020843
+    comp: 109
+  - gvalue1: 05000000a5510000
+    gvalue2: 06000000a5510000
+    skilltag: 50020901
+    comp: 109
+  - gvalue1: 05000000a6510000
+    gvalue2: 06000000a6510000
+    skilltag: 50020902
+    comp: 109
+  - gvalue1: 05000000a7510000
+    gvalue2: 06000000a7510000
+    skilltag: 50020903
+    comp: 109
+  - gvalue1: 05000000a8510000
+    gvalue2: 06000000a8510000
+    skilltag: 50020904
+    comp: 109
+  - gvalue1: 0500000009520000
+    gvalue2: 0600000009520000
+    skilltag: 50021001
+    comp: 109
+  - gvalue1: 050000000a520000
+    gvalue2: 060000000a520000
+    skilltag: 50021002
+    comp: 109
+  - gvalue1: 050000000b520000
+    gvalue2: 060000000b520000
+    skilltag: 50021003
+    comp: 109
+  - gvalue1: 050000000c520000
+    gvalue2: 060000000c520000
+    skilltag: 50021004
+    comp: 109
+  - gvalue1: 050000006c520000
+    gvalue2: 060000006c520000
+    skilltag: 50021100
+    comp: 109
+  - gvalue1: 050000006d520000
+    gvalue2: 060000006d520000
+    skilltag: 50021101
+    comp: 109
+  - gvalue1: 05000000d0520000
+    gvalue2: 06000000d0520000
+    skilltag: 50021200
+    comp: 109
+  - gvalue1: 05000000d1520000
+    gvalue2: 06000000d1520000
+    skilltag: 50021201
+    comp: 109
+  - gvalue1: 0500000034530000
+    gvalue2: 0600000034530000
+    skilltag: 50021300
+    comp: 109
+  - gvalue1: 0500000035530000
+    gvalue2: 0600000035530000
+    skilltag: 50021301
+    comp: 109
+  - gvalue1: 0500000098530000
+    gvalue2: 0600000098530000
+    skilltag: 50021400
+    comp: 109
+  - gvalue1: 0500000099530000
+    gvalue2: 0600000099530000
+    skilltag: 50021401
+    comp: 109
+  - gvalue1: 05000000fc530000
+    gvalue2: 06000000fc530000
+    skilltag: 50021500
+    comp: 109
+  - gvalue1: 05000000fd530000
+    gvalue2: 06000000fd530000
+    skilltag: 50021501
+    comp: 109
+  - gvalue1: 05000000fe530000
+    gvalue2: 06000000fe530000
+    skilltag: 50021502
+    comp: 109
+  - gvalue1: 0500000060540000
+    gvalue2: 0600000060540000
+    skilltag: 50021600
+    comp: 109
+  - gvalue1: 0500000061540000
+    gvalue2: 0600000061540000
+    skilltag: 50021601
+    comp: 109
+  - gvalue1: 0500000062540000
+    gvalue2: 0600000062540000
+    skilltag: 50021602
+    comp: 109
+  - gvalue1: 05000000c5540000
+    gvalue2: 06000000c5540000
+    skilltag: 50021701
+    comp: 109
+  - gvalue1: 0500000034550000
+    gvalue2: 0600000034550000
+    skilltag: 50021812
+    comp: 109
+  - gvalue1: 0500000035550000
+    gvalue2: 0600000035550000
+    skilltag: 50021813
+    comp: 109
+  - gvalue1: 0500000036550000
+    gvalue2: 0600000036550000
+    skilltag: 50021814
+    comp: 109
+  - gvalue1: 050000008e550000
+    gvalue2: 060000008e550000
+    skilltag: 50021902
+    comp: 109
+  - gvalue1: 050000008f550000
+    gvalue2: 060000008f550000
+    skilltag: 50021903
+    comp: 109
+  - gvalue1: 0500000090550000
+    gvalue2: 0600000090550000
+    skilltag: 50021904
+    comp: 109
+  - gvalue1: 05000000f1550000
+    gvalue2: 06000000f1550000
+    skilltag: 50022001
+    comp: 109
+  - gvalue1: 05000000f2550000
+    gvalue2: 06000000f2550000
+    skilltag: 50022002
+    comp: 109
+  - gvalue1: 05000000f3550000
+    gvalue2: 06000000f3550000
+    skilltag: 50022003
+    comp: 109
+  - gvalue1: 05000000f4550000
+    gvalue2: 06000000f4550000
+    skilltag: 50022004
+    comp: 109
+  - gvalue1: 05000000fb550000
+    gvalue2: 06000000fb550000
+    skilltag: 50022011
+    comp: 109
+  - gvalue1: 05000000fc550000
+    gvalue2: 06000000fc550000
+    skilltag: 50022012
+    comp: 109
+  - gvalue1: 05000000fd550000
+    gvalue2: 06000000fd550000
+    skilltag: 50022013
+    comp: 109
+  - gvalue1: 05000000fe550000
+    gvalue2: 06000000fe550000
+    skilltag: 50022014
+    comp: 109
+  - gvalue1: 0500000055560000
+    gvalue2: 0600000055560000
+    skilltag: 50022101
+    comp: 109
+  - gvalue1: 0500000056560000
+    gvalue2: 0600000056560000
+    skilltag: 50022102
+    comp: 109
+  - gvalue1: 0500000057560000
+    gvalue2: 0600000057560000
+    skilltag: 50022103
+    comp: 109
+  - gvalue1: 0500000058560000
+    gvalue2: 0600000058560000
+    skilltag: 50022104
+    comp: 109
+  - gvalue1: 05000000b8560000
+    gvalue2: 06000000b8560000
+    skilltag: 50022200
+    comp: 109
+  - gvalue1: 0500000094750000
+    gvalue2: 0600000094750000
+    skilltag: 50030100
+    comp: 109
+  - gvalue1: 05000000f8750000
+    gvalue2: 06000000f8750000
+    skilltag: 50030200
+    comp: 109
+  - gvalue1: 050000005c760000
+    gvalue2: 060000005c760000
+    skilltag: 50030300
+    comp: 109
+  - gvalue1: 05000000a79c0000
+    gvalue2: 06000000a79c0000
+    skilltag: 50040103
+    comp: 109
+  - gvalue1: 05000000349e0000
+    gvalue2: 06000000349e0000
+    skilltag: 50040500
+    comp: 109
+  - gvalue1: 05000000989e0000
+    gvalue2: 06000000989e0000
+    skilltag: 50040600
+    comp: 109
+  - gvalue1: 05000000a9c50000
+    gvalue2: 06000000a9c50000
+    skilltag: 50050601
+    comp: 109
+  - gvalue1: 05000000aac50000
+    gvalue2: 06000000aac50000
+    skilltag: 50050602
+    comp: 109
+  - gvalue1: 050000000dc60000
+    gvalue2: 060000000dc60000
+    skilltag: 50050701
+    comp: 109
+  - gvalue1: 050000000ec60000
+    gvalue2: 060000000ec60000
+    skilltag: 50050702
+    comp: 109
+  - gvalue1: 050000000fc60000
+    gvalue2: 060000000fc60000
+    skilltag: 50050703
+    comp: 109
+  - gvalue1: 0500000010c60000
+    gvalue2: 0600000010c60000
+    skilltag: 50050704
+    comp: 109
