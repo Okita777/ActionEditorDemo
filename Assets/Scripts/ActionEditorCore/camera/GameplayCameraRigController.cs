@@ -25,16 +25,37 @@ namespace ActionEditor.CameraSystem
         [SerializeField, Min(0f)] private float _pitchSensitivity = 2f;
         [SerializeField] private float _minimumPitch = -35f;
         [SerializeField] private float _maximumPitch = 70f;
-        [SerializeField] private bool _invertY;
+        [SerializeField] private bool _invertY = false;
         [SerializeField] private bool _lookInputEnabled = true;
+
+        [Header("Free Move Recenter")]
+        [Tooltip("自由移动且玩家没有操作镜头时，使相机 yaw 逐渐回到角色朝向。")]
+        [SerializeField] private bool _freeMoveRecenterEnabled = true;
+        [Tooltip("最后一次有效 Look 输入结束后，等待多久才开始自动回正。")]
+        [SerializeField, Min(0f)] private float _freeMoveRecenterDelay = 0.15f;
+        [Tooltip("自动回正的平滑时间。数值越大，横向移动形成的圆弧半径通常越大。")]
+        [SerializeField, Min(0.01f)] private float _freeMoveRecenterSmoothTime = 0.35f;
+        [Tooltip("自动回正的最大 yaw 角速度（度/秒）。")]
+        [SerializeField, Min(0f)] private float _freeMoveRecenterMaxSpeed = 120f;
+        [Tooltip("小于该幅度的 Move 输入不会触发自动回正。")]
+        [SerializeField, Range(0f, 1f)] private float _freeMoveRecenterMoveDeadZone = 0.1f;
+        [Tooltip("小于该幅度的 Look 输入视为玩家没有操作镜头。")]
+        [SerializeField, Min(0f)] private float _freeMoveRecenterLookDeadZone = 0.01f;
+        [Tooltip("移动方向进入该后方夹角后，开始降低自动回正强度。")]
+        [SerializeField, Range(90f, 180f)] private float _freeMoveRecenterBackwardFadeStart = 120f;
+        [Tooltip("移动方向达到该后方夹角后，完全停止自动回正，使纯后退保持直线。")]
+        [SerializeField, Range(90f, 180f)] private float _freeMoveRecenterBackwardFadeEnd = 165f;
 
         [SerializeField] private Transform _mainCameraAnchor;
         [SerializeField] private CharacterInputDriver _inputDriver;
         [SerializeField] private Camera _outputCamera;
         private Transform _followAnchor;
         private Transform _aimAnchor;
+        private Transform _freeMoveRecenterTarget;
         private float _yaw;
         private float _pitch;
+        private float _freeMoveRecenterYawVelocity;
+        private float _timeSinceLookInput;
         private Vector3 _lastPlanarForward = Vector3.forward;
         private Transform _lockTarget;
         private Vector3 _lockTargetOffset;
@@ -108,6 +129,16 @@ namespace ActionEditor.CameraSystem
         {
             _yawSensitivity = Mathf.Max(0f, _yawSensitivity);
             _pitchSensitivity = Mathf.Max(0f, _pitchSensitivity);
+            _freeMoveRecenterDelay = Mathf.Max(0f, _freeMoveRecenterDelay);
+            _freeMoveRecenterSmoothTime = Mathf.Max(0.01f, _freeMoveRecenterSmoothTime);
+            _freeMoveRecenterMaxSpeed = Mathf.Max(0f, _freeMoveRecenterMaxSpeed);
+            _freeMoveRecenterMoveDeadZone = Mathf.Clamp01(_freeMoveRecenterMoveDeadZone);
+            _freeMoveRecenterLookDeadZone = Mathf.Max(0f, _freeMoveRecenterLookDeadZone);
+            _freeMoveRecenterBackwardFadeStart = Mathf.Clamp(_freeMoveRecenterBackwardFadeStart, 90f, 180f);
+            _freeMoveRecenterBackwardFadeEnd = Mathf.Clamp(
+                _freeMoveRecenterBackwardFadeEnd,
+                _freeMoveRecenterBackwardFadeStart,
+                180f);
             if (_minimumPitch > _maximumPitch)
             {
                 float value = _minimumPitch;
@@ -132,9 +163,18 @@ namespace ActionEditor.CameraSystem
             }
 
             Vector2 look = frame.LookAxis;
-            _yaw += look.x * _yawSensitivity;
-            float pitchSign = _invertY ? 1f : -1f;
-            _pitch = Mathf.Clamp(_pitch + look.y * _pitchSensitivity * pitchSign, _minimumPitch, _maximumPitch);
+            if (look.sqrMagnitude > _freeMoveRecenterLookDeadZone * _freeMoveRecenterLookDeadZone)
+            {
+                _yaw += look.x * _yawSensitivity;
+                float pitchSign = _invertY ? 1f : -1f;
+                _pitch = Mathf.Clamp(_pitch + look.y * _pitchSensitivity * pitchSign, _minimumPitch, _maximumPitch);
+                _timeSinceLookInput = 0f;
+                _freeMoveRecenterYawVelocity = 0f;
+                return;
+            }
+
+            _timeSinceLookInput += Time.deltaTime;
+            UpdateFreeMoveRecenter(frame, Time.deltaTime);
         }
 
         private void LateUpdate()
@@ -186,6 +226,7 @@ namespace ActionEditor.CameraSystem
             CameraFeedbackService feedbackService = GetComponent<CameraFeedbackService>() ??
                 gameObject.AddComponent<CameraFeedbackService>();
             SkillEditor.Preview.GameUnit owner = mainCameraAnchor.GetComponentInParent<SkillEditor.Preview.GameUnit>(true);
+            _freeMoveRecenterTarget = owner != null ? owner.transform : mainCameraAnchor.parent;
             feedbackService.Configure(_outputCamera, owner);
 
             Vector3 initialForward = _followAnchor.forward;
@@ -301,7 +342,10 @@ namespace ActionEditor.CameraSystem
             _inputDriver = null;
             _followAnchor = null;
             _aimAnchor = null;
+            _freeMoveRecenterTarget = null;
             _outputCamera = null;
+            _freeMoveRecenterYawVelocity = 0f;
+            _timeSinceLookInput = 0f;
         }
 
         public bool ValidateConfiguration(out string errorMessage)
@@ -331,7 +375,7 @@ namespace ActionEditor.CameraSystem
                 return false;
             }
 
-            if (_gameplayCamera.GetCinemachineComponent<CinemachineComposer>() == null)
+            if (!HasCinemachineComponent<CinemachineComposer>(_gameplayCamera))
             {
                 errorMessage = "默认 Gameplay VCam 的 Aim 必须配置为 Composer。";
                 return false;
@@ -343,7 +387,7 @@ namespace ActionEditor.CameraSystem
                 return false;
             }
 
-            if (_lockCamera.GetCinemachineComponent<CinemachineComposer>() == null)
+            if (!HasCinemachineComponent<CinemachineComposer>(_lockCamera))
             {
                 errorMessage = "Lock VCam 的 Aim 必须配置为 Composer。";
                 return false;
@@ -357,6 +401,24 @@ namespace ActionEditor.CameraSystem
 
             errorMessage = string.Empty;
             return true;
+        }
+
+        private static bool HasCinemachineComponent<T>(CinemachineVirtualCamera virtualCamera)
+            where T : CinemachineComponentBase
+        {
+            if (virtualCamera == null)
+            {
+                return false;
+            }
+
+            if (virtualCamera.GetCinemachineComponent<T>() != null)
+            {
+                return true;
+            }
+
+            // Cinemachine 2.x 在直接检查 Prefab Asset 时可能尚未建立运行时管线缓存，
+            // 但实际组件已经序列化在该 VCam 的隐藏 "cm" 子节点上。
+            return virtualCamera.GetComponentInChildren<T>(true) != null;
         }
 
         private void ResolveRigComponents()
@@ -409,6 +471,74 @@ namespace ActionEditor.CameraSystem
             {
                 _lastPlanarForward = candidate.normalized;
             }
+        }
+
+        private void UpdateFreeMoveRecenter(CharacterInputFrame frame, float deltaTime)
+        {
+            if (!_freeMoveRecenterEnabled ||
+                _freeMoveRecenterTarget == null ||
+                frame == null ||
+                frame.MoveAxis.sqrMagnitude <= _freeMoveRecenterMoveDeadZone * _freeMoveRecenterMoveDeadZone ||
+                _timeSinceLookInput < _freeMoveRecenterDelay ||
+                deltaTime <= 0f)
+            {
+                _freeMoveRecenterYawVelocity = 0f;
+                return;
+            }
+
+            Vector3 cameraForward = Quaternion.Euler(0f, _yaw, 0f) * Vector3.forward;
+            Vector3 cameraRight = Vector3.Cross(Vector3.up, cameraForward).normalized;
+            Vector2 moveAxis = Vector2.ClampMagnitude(frame.MoveAxis, 1f);
+            Vector3 moveDirection = cameraForward * moveAxis.y + cameraRight * moveAxis.x;
+            if (moveDirection.sqrMagnitude <= 0.000001f)
+            {
+                _freeMoveRecenterYawVelocity = 0f;
+                return;
+            }
+
+            moveDirection.Normalize();
+            float moveAngleFromCameraForward = Mathf.Abs(Vector3.SignedAngle(cameraForward, moveDirection, Vector3.up));
+            float recenterWeight = ResolveFreeMoveRecenterWeight(moveAngleFromCameraForward);
+            if (recenterWeight <= 0f)
+            {
+                _freeMoveRecenterYawVelocity = 0f;
+                return;
+            }
+
+            Vector3 targetForward = Vector3.ProjectOnPlane(_freeMoveRecenterTarget.forward, Vector3.up);
+            if (targetForward.sqrMagnitude <= 0.000001f)
+            {
+                _freeMoveRecenterYawVelocity = 0f;
+                return;
+            }
+
+            targetForward.Normalize();
+            float targetYaw = Mathf.Atan2(targetForward.x, targetForward.z) * Mathf.Rad2Deg;
+            _yaw = Mathf.SmoothDampAngle(
+                _yaw,
+                targetYaw,
+                ref _freeMoveRecenterYawVelocity,
+                _freeMoveRecenterSmoothTime,
+                _freeMoveRecenterMaxSpeed * recenterWeight,
+                deltaTime);
+        }
+
+        private float ResolveFreeMoveRecenterWeight(float moveAngleFromCameraForward)
+        {
+            if (moveAngleFromCameraForward <= _freeMoveRecenterBackwardFadeStart)
+            {
+                return 1f;
+            }
+
+            if (_freeMoveRecenterBackwardFadeEnd <= _freeMoveRecenterBackwardFadeStart)
+            {
+                return 0f;
+            }
+
+            return 1f - Mathf.InverseLerp(
+                _freeMoveRecenterBackwardFadeStart,
+                _freeMoveRecenterBackwardFadeEnd,
+                moveAngleFromCameraForward);
         }
 
         private void EnsureLockAimProxy()

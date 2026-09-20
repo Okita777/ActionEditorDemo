@@ -1,0 +1,32 @@
+﻿{
+    "BuffId": "001",
+    "BuffName": "New Buff",
+    "Tags": {
+        "Tags": []
+    },
+    "Duration": 0.0,
+    "IsStackable": false,
+    "StackMode": 0,
+    "BuffType": 0,
+    "IconAssetPath": "",
+    "UpdateInterval": 0.0,
+    "OnAddEffect": {
+        "EffectId": "9ffec05435674c25b4430d6475c568d5",
+        "RootNodeId": "",
+        "Nodes": []
+    },
+    "OnUpdateEffect": {
+        "EffectId": "96870db4dd9d4173b5b3fdb879b7ac1d",
+        "RootNodeId": "",
+        "Nodes": []
+    },
+    "OnRemoveEffect": {
+        "EffectId": "d70a7bb48f09407ba15abf3b6dbab826",
+        "RootNodeId": "",
+        "Nodes": []
+    },
+    "references": {
+        "version": 2,
+        "RefIds": []
+    }
+}

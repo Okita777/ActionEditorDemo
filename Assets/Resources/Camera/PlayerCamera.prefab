@@ -151,6 +151,14 @@ MonoBehaviour:
   _maximumPitch: 70
   _invertY: 0
   _lookInputEnabled: 1
+  _freeMoveRecenterEnabled: 1
+  _freeMoveRecenterDelay: 0.15
+  _freeMoveRecenterSmoothTime: 0.5
+  _freeMoveRecenterMaxSpeed: 90
+  _freeMoveRecenterMoveDeadZone: 0.1
+  _freeMoveRecenterLookDeadZone: 0.01
+  _freeMoveRecenterBackwardFadeStart: 120
+  _freeMoveRecenterBackwardFadeEnd: 165
   _mainCameraAnchor: {fileID: 0}
   _inputDriver: {fileID: 0}
   _outputCamera: {fileID: 0}

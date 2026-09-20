@@ -537,7 +537,11 @@ MonoBehaviour:
   - SocketName: MainCamera
     MountTransform: {fileID: 5148706515195578071}
   WeaponBindings: []
-  ActiveSkillSlots: []
+  ActiveSkillSlots:
+  - SlotIndex: 1
+    DisplayName: "\u4E3B\u52A8\u6280\u80FD\u69FD1"
+    ActionName: 
+    SkillAssetName: 
   PassiveSkillSlots: []
   _attributes: {fileID: 4531194839080695739}
   _battleManager: {fileID: 1292223910295168207}

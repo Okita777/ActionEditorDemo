@@ -71,8 +71,22 @@
             "BlendMode": 0,
             "AvatarMaskAssetPath": "",
             "DefaultWeight": 0.0
+        },
+        {
+            "Layer": 3,
+            "AnimancerLayerIndex": 0,
+            "BlendMode": 0,
+            "AvatarMaskAssetPath": "",
+            "DefaultWeight": 0.0
         }
     ],
-    "ActiveSkillSlots": [],
+    "ActiveSkillSlots": [
+        {
+            "SlotIndex": 1,
+            "DisplayName": "主动技能槽1",
+            "ActionName": "",
+            "SkillId": ""
+        }
+    ],
     "PassiveSkillSlots": []
 }
