@@ -2014,7 +2014,37 @@ namespace SkillEditor.Editor
                     MessageType.None);
             }
 
-            if (config.Data is SoftLockTarget_TimelineEventData softLockTarget)
+            if (config.Data is RootMotionSteering_TimelineEventData rootMotionSteering)
+            {
+                RootMotionSteeringEventArgs args = rootMotionSteering.Args;
+                if (Mathf.Approximately(config.Duration, 0f))
+                {
+                    EditorGUILayout.HelpBox("Root Motion Steering 必须设置 Duration > 0，事件窗口开始前保持原始 Root Motion。", MessageType.Warning);
+                }
+
+                float translationFrom = EditorGUILayout.Slider("位移权重（开始）", args.TranslationWeightFrom, 0f, 1f);
+                float translationTo = EditorGUILayout.Slider("位移权重（结束）", args.TranslationWeightTo, 0f, 1f);
+                float rotationFrom = EditorGUILayout.Slider("旋转权重（开始）", args.RotationWeightFrom, 0f, 1f);
+                float rotationTo = EditorGUILayout.Slider("旋转权重（结束）", args.RotationWeightTo, 0f, 1f);
+                float translationSpeed = EditorGUILayout.FloatField("位移转向速度（度/秒）", args.TranslationSteeringSpeed);
+                float rotationSpeed = EditorGUILayout.FloatField("旋转修正速度（度/秒）", args.RotationSteeringSpeed);
+                if (!Mathf.Approximately(translationFrom, args.TranslationWeightFrom) ||
+                    !Mathf.Approximately(translationTo, args.TranslationWeightTo) ||
+                    !Mathf.Approximately(rotationFrom, args.RotationWeightFrom) ||
+                    !Mathf.Approximately(rotationTo, args.RotationWeightTo) ||
+                    !Mathf.Approximately(translationSpeed, args.TranslationSteeringSpeed) ||
+                    !Mathf.Approximately(rotationSpeed, args.RotationSteeringSpeed))
+                {
+                    args.TranslationWeightFrom = translationFrom;
+                    args.TranslationWeightTo = translationTo;
+                    args.RotationWeightFrom = rotationFrom;
+                    args.RotationWeightTo = rotationTo;
+                    args.TranslationSteeringSpeed = Mathf.Max(0f, translationSpeed);
+                    args.RotationSteeringSpeed = Mathf.Max(0f, rotationSpeed);
+                    MarkDirty();
+                }
+            }
+            else if (config.Data is SoftLockTarget_TimelineEventData softLockTarget)
             {
                 float radius = EditorGUILayout.FloatField("最大半径", softLockTarget.Args.Radius);
                 if (!Mathf.Approximately(radius, softLockTarget.Args.Radius))

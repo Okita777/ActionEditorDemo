@@ -161,6 +161,7 @@ namespace AsiSkillEditor.RunTime
         CameraShake = 8,
         HitVfx = 9,
         HitAudio = 10,
+        RootMotionSteering = 11,
     }
 
     [Serializable]

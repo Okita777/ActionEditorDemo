@@ -78,6 +78,14 @@ namespace ActionEditor.CharacterMotion
         private float _timeSinceStableGrounded;
         private CharacterMotionSnapshot _motionSnapshot;
         private float _localTimeScale = 1f;
+        private Vector3 _rootMotionSteeringDirection;
+        private bool _hasRootMotionSteeringDirection;
+        private int _rootMotionSteeringVersion;
+        private int _activeRootMotionSteeringVersion;
+        private float _rootMotionTranslationSteeringWeight;
+        private float _rootMotionRotationSteeringWeight;
+        private float _rootMotionTranslationSteeringSpeed;
+        private float _rootMotionRotationSteeringSpeed;
 
         public Vector3 CharacterUp => _motor != null ? _motor.CharacterUp : transform.up;
         public CharacterMotionSnapshot MotionSnapshot => _motionSnapshot;
@@ -204,6 +212,60 @@ namespace ActionEditor.CharacterMotion
         public void SetMovementPolicy(StateMovementProfile profile)
         {
             _movementProfile = profile ?? StateMovementProfile.CreateDefault();
+        }
+
+        public int BeginRootMotionSteering(
+            float translationWeight,
+            float rotationWeight,
+            float translationSteeringSpeed,
+            float rotationSteeringSpeed)
+        {
+            int version = ++_rootMotionSteeringVersion;
+            _activeRootMotionSteeringVersion = version;
+            _rootMotionSteeringDirection = Vector3.zero;
+            _hasRootMotionSteeringDirection = false;
+            UpdateRootMotionSteering(
+                version,
+                translationWeight,
+                rotationWeight,
+                translationSteeringSpeed,
+                rotationSteeringSpeed);
+            return version;
+        }
+
+        public bool UpdateRootMotionSteering(
+            int version,
+            float translationWeight,
+            float rotationWeight,
+            float translationSteeringSpeed,
+            float rotationSteeringSpeed)
+        {
+            if (version <= 0 || version != _activeRootMotionSteeringVersion)
+            {
+                return false;
+            }
+
+            _rootMotionTranslationSteeringWeight = Mathf.Clamp01(translationWeight);
+            _rootMotionRotationSteeringWeight = Mathf.Clamp01(rotationWeight);
+            _rootMotionTranslationSteeringSpeed = Mathf.Max(0f, translationSteeringSpeed);
+            _rootMotionRotationSteeringSpeed = Mathf.Max(0f, rotationSteeringSpeed);
+            return true;
+        }
+
+        public void EndRootMotionSteering(int version)
+        {
+            if (version <= 0 || version != _activeRootMotionSteeringVersion)
+            {
+                return;
+            }
+
+            _activeRootMotionSteeringVersion = 0;
+            _rootMotionTranslationSteeringWeight = 0f;
+            _rootMotionRotationSteeringWeight = 0f;
+            _rootMotionTranslationSteeringSpeed = 0f;
+            _rootMotionRotationSteeringSpeed = 0f;
+            _rootMotionSteeringDirection = Vector3.zero;
+            _hasRootMotionSteeringDirection = false;
         }
 
         public void Configure(UnitLocomotionConfig config)
@@ -373,7 +435,14 @@ namespace ActionEditor.CharacterMotion
             }
 
             ApplyCameraForwardFacing(profile);
-            RedirectRootMotionToMoveDirection(profile);
+            if (_activeRootMotionSteeringVersion > 0)
+            {
+                ApplyRootMotionSteering(profile, deltaTime);
+            }
+            else
+            {
+                RedirectRootMotionToMoveDirection(profile);
+            }
 
             if (_forceSystem != null)
             {
@@ -473,6 +542,66 @@ namespace ActionEditor.CharacterMotion
             _characterVelocity.SetRootMotionVelocity(redirectedPlanarVelocity + verticalVelocity);
         }
 
+        private void ApplyRootMotionSteering(StateMovementProfile profile, float deltaTime)
+        {
+            if (profile == null || _inputMotionSource == null ||
+                !_stateAllowsMoveInput || !_stateAllowsLocomotionDrive)
+            {
+                return;
+            }
+
+            CharacterMotionIntent intent = _inputMotionSource.CurrentIntent;
+            if (!intent.HasMoveInput)
+            {
+                return;
+            }
+
+            Vector3 up = _motor != null ? _motor.CharacterUp : Vector3.up;
+            Vector3 desiredDirection = Vector3.ProjectOnPlane(intent.DesiredWorldDirection, up);
+            if (desiredDirection.sqrMagnitude <= 0.000001f)
+            {
+                return;
+            }
+
+            desiredDirection.Normalize();
+            if (profile.TranslationMode != StateTranslationMode.RootMotion ||
+                _characterVelocity.RootMotionVelocity.sqrMagnitude <= 0.000001f)
+            {
+                return;
+            }
+
+            Vector3 rootMotionVelocity = _characterVelocity.RootMotionVelocity;
+            Vector3 planarRootMotion = Vector3.ProjectOnPlane(rootMotionVelocity, up);
+            if (planarRootMotion.sqrMagnitude <= 0.000001f)
+            {
+                return;
+            }
+
+            Vector3 rootMotionDirection = planarRootMotion.normalized;
+            if (!_hasRootMotionSteeringDirection)
+            {
+                // 从事件开始时动画正在行进的方向接管，确保事件边界不会改变惯性轨迹。
+                _rootMotionSteeringDirection = rootMotionDirection;
+                _hasRootMotionSteeringDirection = true;
+            }
+
+            float maxRadiansDelta = _rootMotionTranslationSteeringSpeed *
+                Mathf.Deg2Rad * Mathf.Max(0f, deltaTime);
+            _rootMotionSteeringDirection = Vector3.RotateTowards(
+                _rootMotionSteeringDirection,
+                desiredDirection,
+                maxRadiansDelta,
+                0f).normalized;
+
+            Vector3 verticalVelocity = Vector3.Project(rootMotionVelocity, up);
+            Vector3 blendedDirection = Vector3.Slerp(
+                rootMotionDirection,
+                _rootMotionSteeringDirection,
+                _rootMotionTranslationSteeringWeight).normalized;
+            _characterVelocity.SetRootMotionVelocity(
+                blendedDirection * planarRootMotion.magnitude + verticalVelocity);
+        }
+
         public void PostGroundingUpdate(float deltaTime)
         {
         }
@@ -519,7 +648,29 @@ namespace ActionEditor.CharacterMotion
             // 直接交给 KCC 应用，避免 RotateTowards 截掉快速转身增量且无法在下一帧补回。
             if (_movementProfile != null && _movementProfile.RotationMode == StateRotationMode.RootMotion)
             {
-                currentRotation = Quaternion.Normalize(_characterRotation.RotationDelta * currentRotation);
+                Quaternion rootMotionRotation = Quaternion.Normalize(
+                    _characterRotation.RotationDelta * currentRotation);
+                if (_activeRootMotionSteeringVersion > 0 &&
+                    _rootMotionRotationSteeringWeight > 0f &&
+                    _hasRootMotionSteeringDirection &&
+                    _stateAllowsRotationInput &&
+                    AllowInputRotate)
+                {
+                    Vector3 steeringUp = _motor != null ? _motor.CharacterUp : Vector3.up;
+                    Vector3 steeringDirection = Vector3.ProjectOnPlane(_rootMotionSteeringDirection, steeringUp);
+                    if (steeringDirection.sqrMagnitude > 0.000001f)
+                    {
+                        Quaternion steeringTarget = Quaternion.LookRotation(steeringDirection.normalized, steeringUp);
+                        float correctionSpeed = _rootMotionRotationSteeringSpeed * _rootMotionRotationSteeringWeight;
+                        currentRotation = Quaternion.RotateTowards(
+                            rootMotionRotation,
+                            steeringTarget,
+                            correctionSpeed * Mathf.Max(0f, deltaTime) * _localTimeScale);
+                        return;
+                    }
+                }
+
+                currentRotation = rootMotionRotation;
                 return;
             }
 

@@ -158,6 +158,7 @@
     <Compile Include="Assets\Scripts\ActionEditorCore\camera\ICameraBasisProvider.cs" />
     <Compile Include="Assets\Scripts\ActionEditorCore\InputSystem\Runtime\CharacterInputRuntime.cs" />
     <Compile Include="Assets\Scripts\ActionEditorCore\SkillEditor\Runtime\Runtime\Skill\SkillActionRuntimeAttribute.cs" />
+    <Compile Include="Assets\Scripts\ActionEditorCore\SkillEditor\Runtime\Config\State\TimelineEvent\RootMotionSteering_TimelineEventData.cs" />
     <Compile Include="Assets\Scripts\ActionEditorCore\character_motion\SkillMotionBridge.cs" />
     <Compile Include="Assets\Scripts\ActionEditorCore\SkillEditor\Runtime\Config\MetaSkill\MetaSkillAction\AddToughnessDamage_SkillActionData.cs" />
     <Compile Include="Assets\Scripts\ActionEditorCore\SkillEditor\Runtime\Runtime\State\TimelineEvent\ApplyForce_TimelineEventRuntime.cs" />
@@ -206,6 +207,7 @@
     <Compile Include="Assets\Scripts\ActionEditorCore\SkillEditor\Runtime\Runtime\Skill\SkillRuntimeFactoryUtility.cs" />
     <Compile Include="Assets\Scripts\ActionEditorCore\SkillEditor\Runtime\Config\State\TimelineEvent\StateGateControl_TimelineEventData.cs" />
     <Compile Include="Assets\Scripts\ActionEditorCore\character_motion\CharacterControllerBackend.cs" />
+    <Compile Include="Assets\Scripts\ActionEditorCore\SkillEditor\Runtime\Runtime\State\TimelineEvent\RootMotionSteering_TimelineEventRuntime.cs" />
     <Compile Include="Assets\Scripts\ActionEditorCore\SkillEditor\Runtime\Runtime\Skill\SkillAttributeSet.cs" />
     <Compile Include="Assets\Scripts\ActionEditorCore\SkillEditor\Runtime\Config\State\TimelineEvent\HitAudio_TimelineEventData.cs" />
     <Compile Include="Assets\Scripts\ActionEditorCore\SkillEditor\Runtime\Runtime\CharacterStateBuilder.cs" />

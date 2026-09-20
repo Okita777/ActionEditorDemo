@@ -99,7 +99,30 @@
             "StartTime": 0.0,
             "StartTimeUnit": 0
         },
-        "Tracks": [],
+        "Tracks": [
+            {
+                "TrackId": "00e7912ace1a46cebb431a586109f2dc",
+                "TrackType": 3,
+                "DisplayName": "事件轨道1",
+                "IsEnabled": true,
+                "HitBoxes": [],
+                "Bullets": [],
+                "VfxClips": [],
+                "AudioClips": [],
+                "MetaSkillEvents": [
+                    {
+                        "EventId": "1443dadeb7ed498190d6c749e365b37b",
+                        "DisplayName": "RootMotionSteering_1",
+                        "IsEnabled": true,
+                        "TriggerTime": 0.4156133234500885,
+                        "Duration": 0.7343868017196655,
+                        "Data": {
+                            "rid": 1000
+                        }
+                    }
+                ]
+            }
+        ],
         "InterruptTracks": [
             {
                 "TrackId": "8f5d3bcf64eb4b1cb18593e92f4632d8",
@@ -126,12 +149,10 @@
                         "UseTransitionOverride": false,
                         "TransitionDuration": 0.0,
                         "TransitionTimeUnit": 0,
-                        "TargetStartTime": 0.0,
-                        "TargetStartTimeUnit": 0,
                         "TransitionPolicy": 0,
                         "Conditions": [
                             {
-                                "rid": 1000
+                                "rid": 1001
                             }
                         ]
                     }
@@ -158,6 +179,24 @@
         "RefIds": [
             {
                 "rid": 1000,
+                "type": {
+                    "class": "RootMotionSteering_TimelineEventData",
+                    "ns": "AsiSkillEditor.RunTime",
+                    "asm": "Assembly-CSharp"
+                },
+                "data": {
+                    "Args": {
+                        "TranslationWeightFrom": 0.0,
+                        "TranslationWeightTo": 1.0,
+                        "RotationWeightFrom": 0.0,
+                        "RotationWeightTo": 1.0,
+                        "TranslationSteeringSpeed": 720.0,
+                        "RotationSteeringSpeed": 540.0
+                    }
+                }
+            },
+            {
+                "rid": 1001,
                 "type": {
                     "class": "StateMoveInputInterruptCondition",
                     "ns": "AsiSkillEditor.RunTime",
