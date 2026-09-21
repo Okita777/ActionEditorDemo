@@ -86,6 +86,14 @@ namespace ActionEditor.CharacterMotion
         private float _rootMotionRotationSteeringWeight;
         private float _rootMotionTranslationSteeringSpeed;
         private float _rootMotionRotationSteeringSpeed;
+        private int _rotationModeOverrideVersion;
+        private int _activeRotationModeOverrideVersion;
+        private StateRotationMode _rotationModeOverride;
+        private float _rotationModeOverrideBlendDuration;
+        private float _rotationModeOverrideElapsedTime;
+        private float _rotationModeOverrideDirectionTurnSpeed;
+        private Vector3 _moveDirectionOverrideRootMotionDirection;
+        private bool _hasMoveDirectionOverrideRootMotionDirection;
 
         public Vector3 CharacterUp => _motor != null ? _motor.CharacterUp : transform.up;
         public CharacterMotionSnapshot MotionSnapshot => _motionSnapshot;
@@ -137,7 +145,7 @@ namespace ActionEditor.CharacterMotion
             get
             {
                 Vector3 driveVelocity = LocomotionDriveVelocity;
-                if (_movementProfile != null && _movementProfile.RotationMode == StateRotationMode.CameraForward &&
+                if (ResolveRotationMode(_movementProfile) == StateRotationMode.CameraForward &&
                     TryGetCameraPlanarBasis(out Vector3 cameraForward, out Vector3 cameraRight))
                 {
                     return new Vector3(
@@ -212,6 +220,37 @@ namespace ActionEditor.CharacterMotion
         public void SetMovementPolicy(StateMovementProfile profile)
         {
             _movementProfile = profile ?? StateMovementProfile.CreateDefault();
+        }
+
+        public int BeginRotationModeOverride(
+            StateRotationMode rotationMode,
+            float blendDuration,
+            float directionTurnSpeed)
+        {
+            int version = ++_rotationModeOverrideVersion;
+            _activeRotationModeOverrideVersion = version;
+            _rotationModeOverride = rotationMode;
+            _rotationModeOverrideBlendDuration = Mathf.Max(0f, blendDuration);
+            _rotationModeOverrideElapsedTime = 0f;
+            _rotationModeOverrideDirectionTurnSpeed = Mathf.Max(0f, directionTurnSpeed);
+            _moveDirectionOverrideRootMotionDirection = Vector3.zero;
+            _hasMoveDirectionOverrideRootMotionDirection = false;
+            return version;
+        }
+
+        public void EndRotationModeOverride(int version)
+        {
+            if (version <= 0 || version != _activeRotationModeOverrideVersion)
+            {
+                return;
+            }
+
+            _activeRotationModeOverrideVersion = 0;
+            _rotationModeOverrideBlendDuration = 0f;
+            _rotationModeOverrideElapsedTime = 0f;
+            _rotationModeOverrideDirectionTurnSpeed = 0f;
+            _moveDirectionOverrideRootMotionDirection = Vector3.zero;
+            _hasMoveDirectionOverrideRootMotionDirection = false;
         }
 
         public int BeginRootMotionSteering(
@@ -329,16 +368,23 @@ namespace ActionEditor.CharacterMotion
             deltaTime *= _localTimeScale;
 
             StateMovementProfile profile = _movementProfile ?? StateMovementProfile.CreateDefault();
+            if (_activeRotationModeOverrideVersion > 0)
+            {
+                _rotationModeOverrideElapsedTime += Mathf.Max(0f, deltaTime);
+            }
+
+            StateRotationMode rotationMode = ResolveRotationMode(profile);
+            bool isRotationModeHandoff = IsRotationModeOverrideHandoff(profile);
             _observedTranslationMode = profile.TranslationMode;
-            _observedRotationMode = profile.RotationMode;
+            _observedRotationMode = rotationMode;
             bool allowsInputTranslation = profile.TranslationMode == StateTranslationMode.Input ||
                 profile.TranslationMode == StateTranslationMode.Hybrid;
             bool allowsRootTranslation = profile.TranslationMode == StateTranslationMode.RootMotion ||
                 profile.TranslationMode == StateTranslationMode.Hybrid;
-            bool allowsDirectionRotation = profile.RotationMode == StateRotationMode.MoveDirection ||
-                profile.RotationMode == StateRotationMode.TargetDirection ||
-                profile.RotationMode == StateRotationMode.LimitedTargetDirection;
-            bool allowsRootRotation = profile.RotationMode == StateRotationMode.RootMotion;
+            bool allowsDirectionRotation = rotationMode == StateRotationMode.MoveDirection ||
+                rotationMode == StateRotationMode.TargetDirection ||
+                rotationMode == StateRotationMode.LimitedTargetDirection;
+            bool allowsRootRotation = rotationMode == StateRotationMode.RootMotion || isRotationModeHandoff;
 
             bool rootMotionOwnsMove = false;
             bool rootMotionOwnsRotation = false;
@@ -374,7 +420,7 @@ namespace ActionEditor.CharacterMotion
                         && AllowInputRotate
                         && _stateAllowsRotationInput
                         && allowsDirectionRotation
-                        && !rootMotionOwnsRotation;
+                        && (!rootMotionOwnsRotation || isRotationModeHandoff);
                     inputSource.Collect(_characterVelocity, _characterRotation, deltaTime);
                     if (_characterVelocity.HasDesiredLocomotionVelocity)
                     {
@@ -403,7 +449,7 @@ namespace ActionEditor.CharacterMotion
                         && AllowAIRotate
                         && _stateAllowsRotationInput
                         && allowsDirectionRotation
-                        && !rootMotionOwnsRotation;
+                        && (!rootMotionOwnsRotation || isRotationModeHandoff);
                     aiSource.Collect(_characterVelocity, _characterRotation, deltaTime);
                     ApplyHybridInputAxisMask(profile);
                     aiSource.EnableMove = originalMove;
@@ -434,14 +480,14 @@ namespace ActionEditor.CharacterMotion
                 source.Collect(_characterVelocity, _characterRotation, deltaTime);
             }
 
-            ApplyCameraForwardFacing(profile);
+            ApplyCameraForwardFacing(profile, rotationMode);
             if (_activeRootMotionSteeringVersion > 0)
             {
                 ApplyRootMotionSteering(profile, deltaTime);
             }
             else
             {
-                RedirectRootMotionToMoveDirection(profile);
+                RedirectRootMotionToMoveDirection(profile, rotationMode, deltaTime);
             }
 
             if (_forceSystem != null)
@@ -455,9 +501,9 @@ namespace ActionEditor.CharacterMotion
             }
         }
 
-        private void ApplyCameraForwardFacing(StateMovementProfile profile)
+        private void ApplyCameraForwardFacing(StateMovementProfile profile, StateRotationMode rotationMode)
         {
-            if (profile == null || profile.RotationMode != StateRotationMode.CameraForward ||
+            if (profile == null || rotationMode != StateRotationMode.CameraForward ||
                 !AllowInputRotate || !_stateAllowsRotationInput ||
                 !TryGetCameraPlanarBasis(out Vector3 cameraForward, out _))
             {
@@ -518,10 +564,13 @@ namespace ActionEditor.CharacterMotion
                 "MovementPolicy.HybridInput");
         }
 
-        private void RedirectRootMotionToMoveDirection(StateMovementProfile profile)
+        private void RedirectRootMotionToMoveDirection(
+            StateMovementProfile profile,
+            StateRotationMode rotationMode,
+            float deltaTime)
         {
             if (profile == null || profile.TranslationMode != StateTranslationMode.RootMotion ||
-                profile.RotationMode != StateRotationMode.MoveDirection ||
+                rotationMode != StateRotationMode.MoveDirection ||
                 _characterVelocity.RootMotionVelocity.sqrMagnitude <= 0.000001f ||
                 !_characterRotation.HasLookDirection)
             {
@@ -537,7 +586,34 @@ namespace ActionEditor.CharacterMotion
                 return;
             }
 
-            Vector3 redirectedPlanarVelocity = desiredDirection.normalized * planarRootMotion.magnitude;
+            desiredDirection.Normalize();
+            Vector3 redirectedDirection = desiredDirection;
+            if (_activeRotationModeOverrideVersion > 0)
+            {
+                // 覆盖期间维持一个连续的受控方向。输入变化只改变目标，不直接重写速度方向，
+                // 避免相机回正反馈使 W 输入在 TurnBack 尚未完成时产生横向漂移。
+                if (!_hasMoveDirectionOverrideRootMotionDirection)
+                {
+                    _moveDirectionOverrideRootMotionDirection = planarRootMotion.normalized;
+                    _hasMoveDirectionOverrideRootMotionDirection = true;
+                }
+
+                _moveDirectionOverrideRootMotionDirection = Vector3.RotateTowards(
+                    _moveDirectionOverrideRootMotionDirection,
+                    desiredDirection,
+                    _rotationModeOverrideDirectionTurnSpeed * Mathf.Deg2Rad * Mathf.Max(0f, deltaTime),
+                    0f).normalized;
+                redirectedDirection = _moveDirectionOverrideRootMotionDirection;
+
+                // 接管窗口内仍保留动画正在产生的轨迹，再以与旋转相同的权重逐步交给输入方向。
+                float handoffWeight = GetRotationModeOverrideHandoffWeight(profile);
+                redirectedDirection = Vector3.Slerp(
+                    planarRootMotion.normalized,
+                    redirectedDirection,
+                    handoffWeight).normalized;
+            }
+
+            Vector3 redirectedPlanarVelocity = redirectedDirection * planarRootMotion.magnitude;
             Vector3 verticalVelocity = Vector3.Project(rootMotionVelocity, up);
             _characterVelocity.SetRootMotionVelocity(redirectedPlanarVelocity + verticalVelocity);
         }
@@ -646,7 +722,8 @@ namespace ActionEditor.CharacterMotion
 
             // Root Motion 是动画已经确定的本次旋转增量，不是需要角速度追踪的目标朝向。
             // 直接交给 KCC 应用，避免 RotateTowards 截掉快速转身增量且无法在下一帧补回。
-            if (_movementProfile != null && _movementProfile.RotationMode == StateRotationMode.RootMotion)
+            StateRotationMode rotationMode = ResolveRotationMode(_movementProfile);
+            if (rotationMode == StateRotationMode.RootMotion)
             {
                 Quaternion rootMotionRotation = Quaternion.Normalize(
                     _characterRotation.RotationDelta * currentRotation);
@@ -690,10 +767,41 @@ namespace ActionEditor.CharacterMotion
                 }
             }
 
-            targetRotation = _characterRotation.RotationDelta * targetRotation;
+            if (_activeRotationModeOverrideVersion > 0 &&
+                _rotationModeOverride == StateRotationMode.MoveDirection &&
+                _hasMoveDirectionOverrideRootMotionDirection)
+            {
+                // 位移和朝向共用同一个受控方向。不能让位移追随平滑方向、朝向却直接追原始输入，
+                // 否则相机相对输入变化时两者会分离，表现为 TurnBack 横向漂移。
+                Vector3 controlledDirection = Vector3.ProjectOnPlane(
+                    _moveDirectionOverrideRootMotionDirection,
+                    up);
+                if (controlledDirection.sqrMagnitude > 0.0001f)
+                {
+                    targetRotation = Quaternion.LookRotation(controlledDirection.normalized, up);
+                }
+            }
+
             float baseTurnSpeed = isStableGrounded ? _baseTurnSpeed : _airTurnSpeed;
             float stateTurnLimit = _movementProfile != null ? Mathf.Max(0f, _movementProfile.MaxTurnSpeed) : baseTurnSpeed;
             float maxTurnSpeed = stateTurnLimit > 0f ? Mathf.Min(baseTurnSpeed, stateTurnLimit) : baseTurnSpeed;
+            bool isRotationModeHandoff = IsRotationModeOverrideHandoff(_movementProfile);
+            if (isRotationModeHandoff)
+            {
+                Quaternion rootMotionRotation = Quaternion.Normalize(
+                    _characterRotation.RotationDelta * currentRotation);
+                Quaternion moveDirectionRotation = Quaternion.RotateTowards(
+                    currentRotation,
+                    targetRotation,
+                    maxTurnSpeed * Mathf.Max(0f, deltaTime) * _localTimeScale);
+                currentRotation = Quaternion.Slerp(
+                    rootMotionRotation,
+                    moveDirectionRotation,
+                    GetRotationModeOverrideHandoffWeight(_movementProfile));
+                return;
+            }
+
+            targetRotation = _characterRotation.RotationDelta * targetRotation;
             if (hardTurn)
             {
                 maxTurnSpeed = Mathf.Max(maxTurnSpeed, HardTurnSpeed);
@@ -703,6 +811,38 @@ namespace ActionEditor.CharacterMotion
             currentRotation = hardTurn && SnapFacingOnHardTurn
                 ? targetRotation
                 : Quaternion.RotateTowards(currentRotation, targetRotation, maxTurnSpeed * Mathf.Max(0f, deltaTime));
+        }
+
+        private StateRotationMode ResolveRotationMode(StateMovementProfile profile)
+        {
+            if (_activeRotationModeOverrideVersion > 0)
+            {
+                return _rotationModeOverride;
+            }
+
+            return profile != null ? profile.RotationMode : StateRotationMode.MoveDirection;
+        }
+
+        private bool IsRotationModeOverrideHandoff(StateMovementProfile profile)
+        {
+            return _activeRotationModeOverrideVersion > 0 &&
+                _rotationModeOverride == StateRotationMode.MoveDirection &&
+                profile != null &&
+                profile.RotationMode == StateRotationMode.RootMotion &&
+                _rotationModeOverrideBlendDuration > 0f &&
+                _rotationModeOverrideElapsedTime < _rotationModeOverrideBlendDuration;
+        }
+
+        private float GetRotationModeOverrideHandoffWeight(StateMovementProfile profile)
+        {
+            if (!IsRotationModeOverrideHandoff(profile))
+            {
+                return 1f;
+            }
+
+            float normalizedTime = Mathf.Clamp01(
+                _rotationModeOverrideElapsedTime / _rotationModeOverrideBlendDuration);
+            return normalizedTime * normalizedTime * (3f - 2f * normalizedTime);
         }
 
         public void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)

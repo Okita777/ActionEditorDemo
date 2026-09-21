@@ -101,7 +101,7 @@
         },
         "Tracks": [
             {
-                "TrackId": "00e7912ace1a46cebb431a586109f2dc",
+                "TrackId": "ecf6c27d1a914cc28e54c656e765127e",
                 "TrackType": 3,
                 "DisplayName": "事件轨道1",
                 "IsEnabled": true,
@@ -111,11 +111,11 @@
                 "AudioClips": [],
                 "MetaSkillEvents": [
                     {
-                        "EventId": "1443dadeb7ed498190d6c749e365b37b",
-                        "DisplayName": "RootMotionSteering_1",
+                        "EventId": "e036a5f09fda4646bb8c0bb7c1eb9492",
+                        "DisplayName": "RotationModeOverride_1",
                         "IsEnabled": true,
-                        "TriggerTime": 0.4156133234500885,
-                        "Duration": 0.7343868017196655,
+                        "TriggerTime": 0.6856533885002136,
+                        "Duration": 0.4643467664718628,
                         "Data": {
                             "rid": 1000
                         }
@@ -180,18 +180,15 @@
             {
                 "rid": 1000,
                 "type": {
-                    "class": "RootMotionSteering_TimelineEventData",
+                    "class": "RotationModeOverride_TimelineEventData",
                     "ns": "AsiSkillEditor.RunTime",
                     "asm": "Assembly-CSharp"
                 },
                 "data": {
                     "Args": {
-                        "TranslationWeightFrom": 0.0,
-                        "TranslationWeightTo": 1.0,
-                        "RotationWeightFrom": 0.0,
-                        "RotationWeightTo": 1.0,
-                        "TranslationSteeringSpeed": 720.0,
-                        "RotationSteeringSpeed": 540.0
+                        "RotationMode": 0,
+                        "BlendDuration": 0.019999999552965165,
+                        "DirectionTurnSpeed": 500.0
                     }
                 }
             },

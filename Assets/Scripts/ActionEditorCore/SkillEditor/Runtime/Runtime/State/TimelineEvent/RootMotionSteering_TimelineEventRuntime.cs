@@ -76,4 +76,57 @@ namespace AsiSkillEditor.RunTime
             _steeringHandle = 0;
         }
     }
+
+    [TimelineEventRuntime(typeof(RotationModeOverride_TimelineEventData))]
+    public sealed class RotationModeOverride_TimelineEventRuntime : TimelineEventRuntimeBase
+    {
+        private readonly RotationModeOverride_TimelineEventData _data;
+        private CustomCharacterController _controller;
+        private int _overrideHandle;
+
+        public RotationModeOverride_TimelineEventRuntime(TimelineEventConfig config) : base(config)
+        {
+            _data = mData as RotationModeOverride_TimelineEventData;
+        }
+
+        protected override void OnBegin()
+        {
+            if (_data == null || _data.Args == null || mContext == null || mContext.Caster == null)
+            {
+                return;
+            }
+
+            _controller = mContext.Caster.GetComponent<CustomCharacterController>() ??
+                mContext.Caster.GetComponentInChildren<CustomCharacterController>(true);
+            if (_controller != null)
+            {
+                _overrideHandle = _controller.BeginRotationModeOverride(
+                    _data.Args.RotationMode,
+                    _data.Args.BlendDuration,
+                    _data.Args.DirectionTurnSpeed);
+            }
+        }
+
+        protected override void OnEnd(bool interrupted)
+        {
+            ReleaseOverride();
+        }
+
+        public override void Dispose()
+        {
+            ReleaseOverride();
+            base.Dispose();
+        }
+
+        private void ReleaseOverride()
+        {
+            if (_controller != null && _overrideHandle > 0)
+            {
+                _controller.EndRotationModeOverride(_overrideHandle);
+            }
+
+            _controller = null;
+            _overrideHandle = 0;
+        }
+    }
 }

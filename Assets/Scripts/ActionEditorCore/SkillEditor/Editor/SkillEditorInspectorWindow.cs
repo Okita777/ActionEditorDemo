@@ -3480,7 +3480,45 @@ namespace SkillEditor.Editor
                         MessageType.None);
                 }
 
-                if (config.Data is RootMotionSteering_TimelineEventData rootMotionSteering)
+                if (config.Data is RotationModeOverride_TimelineEventData rotationModeOverride)
+                {
+                    if (Mathf.Approximately(config.Duration, 0f))
+                    {
+                        EditorGUILayout.HelpBox("Rotation Mode Override 必须设置 Duration > 0；事件结束或状态中断时会自动恢复原状态模式。", MessageType.Warning);
+                    }
+
+                    StateRotationMode rotationMode = (StateRotationMode)EditorGUILayout.EnumPopup(
+                        "旋转模式覆盖",
+                        rotationModeOverride.Args.RotationMode);
+                    if (rotationMode != rotationModeOverride.Args.RotationMode)
+                    {
+                        rotationModeOverride.Args.RotationMode = rotationMode;
+                        NotifyModified();
+                    }
+
+                    float blendDuration = Mathf.Max(0f, EditorGUILayout.FloatField(
+                        "控制权接管时间（秒）",
+                        rotationModeOverride.Args.BlendDuration));
+                    if (!Mathf.Approximately(blendDuration, rotationModeOverride.Args.BlendDuration))
+                    {
+                        rotationModeOverride.Args.BlendDuration = blendDuration;
+                        NotifyModified();
+                    }
+
+                    float directionTurnSpeed = Mathf.Max(0f, EditorGUILayout.FloatField(
+                        "接管后转向速度（度/秒）",
+                        rotationModeOverride.Args.DirectionTurnSpeed));
+                    if (!Mathf.Approximately(directionTurnSpeed, rotationModeOverride.Args.DirectionTurnSpeed))
+                    {
+                        rotationModeOverride.Args.DirectionTurnSpeed = directionTurnSpeed;
+                        NotifyModified();
+                    }
+
+                    EditorGUILayout.HelpBox(
+                        "Turn Back 后半段可覆盖为 MoveDirection。接管期间，动画根旋转与当前轨迹会平滑交给输入控制；接管完成后，Root Motion 继续提供速度大小。",
+                        MessageType.Info);
+                }
+                else if (config.Data is RootMotionSteering_TimelineEventData rootMotionSteering)
                 {
                     RootMotionSteeringEventArgs args = rootMotionSteering.Args;
                     if (Mathf.Approximately(config.Duration, 0f))

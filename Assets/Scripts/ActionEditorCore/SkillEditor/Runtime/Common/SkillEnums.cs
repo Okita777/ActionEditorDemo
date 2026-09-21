@@ -162,6 +162,7 @@ namespace AsiSkillEditor.RunTime
         HitVfx = 9,
         HitAudio = 10,
         RootMotionSteering = 11,
+        RotationModeOverride = 12,
     }
 
     [Serializable]

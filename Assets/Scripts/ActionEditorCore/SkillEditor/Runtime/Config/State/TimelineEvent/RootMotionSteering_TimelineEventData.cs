@@ -37,4 +37,37 @@ namespace AsiSkillEditor.RunTime
             return result;
         }
     }
+
+    [Serializable]
+    public sealed class RotationModeOverrideEventArgs
+    {
+        public StateRotationMode RotationMode = StateRotationMode.MoveDirection;
+        public float BlendDuration = 0.15f;
+        public float DirectionTurnSpeed = 540f;
+    }
+
+    [Serializable]
+    [TimelineEventData(TimelineEventType.RotationModeOverride)]
+    public sealed class RotationModeOverride_TimelineEventData : TimelineEventData
+    {
+        public RotationModeOverrideEventArgs Args = new RotationModeOverrideEventArgs();
+
+        public TimelineEventType EventType => TimelineEventType.RotationModeOverride;
+        public object ArgsObject => Args;
+        public bool SupportsDuration => true;
+        public float DefaultDuration => 0.5f;
+
+        public TimelineEventData Create()
+        {
+            return new RotationModeOverride_TimelineEventData();
+        }
+
+        public TimelineEventData Clone(TimelineEventData target)
+        {
+            RotationModeOverride_TimelineEventData result = target as RotationModeOverride_TimelineEventData ??
+                new RotationModeOverride_TimelineEventData();
+            result.Args = SkillDataFactoryUtility.CloneSerializable(Args, result.Args);
+            return result;
+        }
+    }
 }
