@@ -71,13 +71,6 @@
             "BlendMode": 0,
             "AvatarMaskAssetPath": "",
             "DefaultWeight": 0.0
-        },
-        {
-            "Layer": 3,
-            "AnimancerLayerIndex": 0,
-            "BlendMode": 0,
-            "AvatarMaskAssetPath": "",
-            "DefaultWeight": 0.0
         }
     ],
     "ActiveSkillSlots": [
